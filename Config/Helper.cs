@@ -217,7 +217,7 @@ public class Helper
         try
         {
             var g_Main = MainPlugin.Instance.g_Main;
-            if (!player.IsValid()) return;
+            if (!player.IsValid() || g_Main.Player_Data.ContainsKey(player)) return;
             
             var steamId = player.SteamID;
 
