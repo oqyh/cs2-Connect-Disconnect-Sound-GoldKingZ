@@ -120,7 +120,7 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 |----------|-------------|--------|----------|
 | `MySql_Enable` | Enable MySQL | `true`-Yes<br>`false`-No | - |
 | `MySql_Host` | Database Host | Example: `123.45.67.89` | `MySql_Enable=true` |
-| `MySql_Database` | Database Name | Example: `Chat_Logs` | `MySql_Enable=true` |
+| `MySql_Database` | Database Name | Example: `test` | `MySql_Enable=true` |
 | `MySql_Username` | Database User | Example: `root` | `MySql_Enable=true` |
 | `MySql_Password` | Database Password | Example: `Password123` | `MySql_Enable=true` |
 | `MySql_Port` | Database Port | Default: `3306` | `MySql_Enable=true` |
