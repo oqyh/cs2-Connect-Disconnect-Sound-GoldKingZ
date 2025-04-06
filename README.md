@@ -54,7 +54,7 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 > **Chat & Sound Configuration**  
 > `../Connect-Disconnect-Sound-GoldKingZ/config/connect_disconnect_config.json`
 
-## 📜 `config.json`
+## 🛠️ `config.json`
 
 <details open>
 <summary><b>Main Config</b> (Click to expand 🔽)</summary>
@@ -140,7 +140,7 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 </details>
 
 
-## 📜 `connect_disconnect_config.json`
+## 🛠️ `connect_disconnect_config.json`
 
 <details open>
 <summary><b>Connect Disconnect Config</b> (Click to expand 🔽)</summary>
