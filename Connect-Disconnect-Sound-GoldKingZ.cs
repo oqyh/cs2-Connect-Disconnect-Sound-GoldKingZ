@@ -16,7 +16,7 @@ namespace CnD_Sound;
 public class MainPlugin : BasePlugin
 {
     public override string ModuleName => "Connect Disconnect Sound (Continent , Country , City , Message , Sounds , Logs , Discord)";
-    public override string ModuleVersion => "1.1.0";
+    public override string ModuleVersion => "1.1.1";
     public override string ModuleAuthor => "Gold KingZ";
     public override string ModuleDescription => "https://github.com/oqyh";
     public static MainPlugin Instance { get; set; } = new();
@@ -212,7 +212,7 @@ public class MainPlugin : BasePlugin
             
             await Server.NextFrameAsync(async () =>
             {
-                if (!player.IsValid()) return;
+                if (!player.IsValid() || !g_Main.Player_Data.ContainsKey(player))return;
 
                 var (ConnectionSettingsMessage, ConnectionSettingsSound, ConnectionSettingsSoundVolume) = Helper.GetPlayerConnectionSettings(player, Disconnect?"DISCONNECT":"CONNECT");
                 string formatted = "";
@@ -238,7 +238,7 @@ public class MainPlugin : BasePlugin
 
                 foreach (var allplayers in Helper.GetPlayersController())
                 {
-                    if (!allplayers.IsValid()) continue;
+                    if (!allplayers.IsValid() || !g_Main.Player_Data.ContainsKey(allplayers))continue;
 
                     if (!string.IsNullOrEmpty(formatted) && (g_Main.Player_Data[allplayers].Toggle_Messages == 1 || g_Main.Player_Data[allplayers].Toggle_Messages == -1))
                     {
@@ -362,25 +362,25 @@ public class MainPlugin : BasePlugin
         var reasonInt = @event.Reason;
         var reason = Helper.GetDisconnectReason(reasonInt);
 
-        if (!player.IsValid()) return HookResult.Continue;
+        if (!player.IsValid())return HookResult.Continue;
 
-        if (g_Main.Player_Data.ContainsKey(player))
+        if (Configs.GetConfigData().DisableLoopConnections && reasonInt == 55)
         {
-            if(Configs.GetConfigData().RemoveDefaultDisconnect == 2)
+            if (!g_Main.OnLoop.ContainsKey(player))
+            {
+                g_Main.OnLoop.Add(player, true);
+            }
+            if (g_Main.OnLoop.ContainsKey(player))
+            {
+                return HookResult.Continue;
+            }
+        }
+
+        if(Configs.GetConfigData().RemoveDefaultDisconnect == 2)
+        {
+            if (g_Main.Player_Data.ContainsKey(player))
             {
                 g_Main.Player_Data[player].Remove_Icon = true;
-            }
-
-            if (Configs.GetConfigData().DisableLoopConnections && reasonInt == 55)
-            {
-                if (!g_Main.OnLoop.ContainsKey(player))
-                {
-                    g_Main.OnLoop.Add(player, true);
-                }
-                if (g_Main.OnLoop.ContainsKey(player))
-                {
-                    return HookResult.Continue;
-                }
             }
         }
 

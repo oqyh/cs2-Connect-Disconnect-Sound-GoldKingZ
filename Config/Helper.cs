@@ -217,13 +217,13 @@ public class Helper
         try
         {
             var g_Main = MainPlugin.Instance.g_Main;
-            if (!player.IsValid() || g_Main.Player_Data.ContainsKey(player)) return;
+            if (!player.IsValid()) return;
             
             var steamId = player.SteamID;
 
             await Server.NextFrameAsync(() => 
             {
-                if (!player.IsValid() || g_Main.Player_Data.ContainsKey(player)) return;
+                if (!player.IsValid()) return;
 
                 var initialData = new Globals.PlayerDataClass(
                     player,
@@ -280,7 +280,8 @@ public class Helper
 
     private static void UpdatePlayerData(CCSPlayerController player, Globals_Static.PersonData data)
     {
-        if (!player.IsValid() || !MainPlugin.Instance.g_Main.Player_Data.TryGetValue(player, out var handle))return;
+        if (!player.IsValid() || !MainPlugin.Instance.g_Main.Player_Data.ContainsKey(player))return;
+        if (!MainPlugin.Instance.g_Main.Player_Data.TryGetValue(player, out var handle))return;
 
         if(data.Toggle_Messages < 0 || data.Toggle_Sounds < 0)
         {
