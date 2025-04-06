@@ -2,7 +2,7 @@
 
 <a href="https://discord.com/invite/U7AuQhu"><img src="https://discord.com/api/guilds/651838917687115806/widget.png?style=banner2"></a>
 
-# [CS2] Connect-Disconnect-Sound-GoldKingZ (1.1.0)
+# [CS2] Connect-Disconnect-Sound-GoldKingZ (1.1.1)
 
 Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
@@ -203,6 +203,9 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
 <details>
 <summary><b>📋 View Version History</b> (Click to expand 🔽)</summary>
+
+### [1.1.0]
+- Fix Error 'CounterStrikeSharp.API.Core.CCSPlayerController' was not present in the dictionary
 
 ### [1.1.0]
 #### **Core Improvements**  
