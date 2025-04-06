@@ -1,17 +1,18 @@
 {
-	"chat.message.connect": "{green}Gold KingZ {grey}| {purple}{2} {lime}Connected [{9} - {10}]",
-	"chat.message.disconnect": "{green}Gold KingZ {grey}| {purple}{2} {red}Disconnected [{11}]",
+	"PrintChatToPlayer.Toggle.Messages.Not.Allowed": "{green}[CnD] {darkred}You Dont Have Permission",
+	"PrintChatToPlayer.Toggle.Messages.Enabled": "{green}[CnD] {grey}Messages Is Now {lime}Enabled",
+	"PrintChatToPlayer.Toggle.Messages.Disabled": "{green}[CnD] {grey}Messages Is Now {darkred}Disabled",
 
-	"console.message.connect": "Gold KingZ | {2} Connected [{9} - {10}]",
-	"console.message.disconnect": "Gold KingZ | {2} Disconnected [{9} - {10}] [{11}]",
-
-	"command.not.allowed": "{green}Gold KingZ {grey}| {darkred}Toggle Connect/Disconnect Sounds For Vips",
-	"command.sound.enabled": "{green}Gold KingZ {grey}| Connect/Disconnect Sounds Has Been {lime}Enabled",
-	"command.sound.disabled": "{green}Gold KingZ {grey}| Connect/Disconnect Sounds Has Been {darkred}Disabled",
+	"PrintChatToPlayer.Toggle.Sounds.Not.Allowed": "{green}[CnD] {darkred}You Dont Have Permission",
+	"PrintChatToPlayer.Toggle.Sounds.Enabled": "{green}[CnD] {grey}Sounds Is Now {lime}Enabled",
+	"PrintChatToPlayer.Toggle.Sounds.Disabled": "{green}[CnD] {grey}Sounds Is Now {darkred}Disabled",
 
 	"invalid.steamid": "InvalidSteamID",
-	"invalid.ipadress": "InValidIpAddress",
-	"unknown.short.country": "U/C",
-	"unknown.long.country": "Unknown Country",
-	"unknown.city": "Unknown City"
+	"invalid.ipadress": "Local Host",
+
+	"unknown.continent": "Local Host",
+	"unknown.long.country": "Local Host",
+	"unknown.short.country": "Local Host",
+	"unknown.city": "Local Host",
+	"unknown.reason": "Unknown Reason"
 }
