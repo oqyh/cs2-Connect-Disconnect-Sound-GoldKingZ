@@ -34,7 +34,17 @@ public class PlayerChat
 {
     public HookResult OnPlayerChat(CCSPlayerController? player, CommandInfo info, bool TeamChat)
 	{
-        if (!player.IsValid())return HookResult.Continue;
+        if (!player.IsValid() || !MainPlugin.Instance.g_Main.Player_Data.ContainsKey(player))return HookResult.Continue;
+
+        if (Configs.GetConfigData().CompatibilityWithCS2Fixes)
+        {
+            if((DateTime.Now - MainPlugin.Instance.g_Main.Player_Data[player].Time).TotalSeconds < 2)
+            {
+                return HookResult.Continue;
+            }
+            MainPlugin.Instance.g_Main.Player_Data[player].Time = DateTime.Now;
+        }
+
         var playerid = player.SteamID;
         var eventmessage = info.ArgString;
         eventmessage = eventmessage.TrimStart('"');
@@ -52,17 +62,13 @@ public class PlayerChat
                 Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Not.Allowed"]);
             }else
             {
-                if(MainPlugin.Instance.g_Main.Player_Data.ContainsKey(player))
+                MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages = MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages.ToggleOnOff();
+                if(MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages == -1)
                 {
-                    MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages = MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages.ToggleOnOff();
-
-                    if(MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages == -1)
-                    {
-                        Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Enabled"]);
-                    }else if(MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages == -2)
-                    {
-                        Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Disabled"]);
-                    }
+                    Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Enabled"]);
+                }else if(MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages == -2)
+                {
+                    Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Disabled"]);
                 }
             }
         }
@@ -75,21 +81,16 @@ public class PlayerChat
                 Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Not.Allowed"]);
             }else
             {
-                if(MainPlugin.Instance.g_Main.Player_Data.ContainsKey(player))
+                MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds = MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds.ToggleOnOff();
+                if(MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds == -1)
                 {
-                    MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds = MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds.ToggleOnOff();
-
-                    if(MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds == -1)
-                    {
-                        Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Enabled"]);
-                    }else if(MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds == -2)
-                    {
-                        Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Disabled"]);
-                    }
+                    Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Enabled"]);
+                }else if(MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds == -2)
+                {
+                    Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Disabled"]);
                 }
             }
         }
-
         return HookResult.Continue;
     }
 }

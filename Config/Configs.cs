@@ -222,6 +222,10 @@ namespace CnD_Sound.Config
             }
 
             [BreakLine("{space}----------------------------[ ↓ Main Config ↓ ]----------------------------{space}")]
+
+            [Comment("Compatibility With CS2Fixes?\ntrue = Yes")]
+            public bool CompatibilityWithCS2Fixes { get; set; }
+
             [Comment("Enable Early Connection Of The Players?\ntrue = Yes\nfalse = No (Wait When Player Fully Connected)")]
             public bool EarlyConnection { get; set; }
 
@@ -366,6 +370,7 @@ namespace CnD_Sound.Config
                 Version = MainPlugin.Instance.ModuleVersion;
                 Link = "https://github.com/oqyh/cs2-Connect-Disconnect-Sound-GoldKingZ";
 
+                CompatibilityWithCS2Fixes = true;
                 EarlyConnection = true;
                 DisableLoopConnections = true;
                 DisableServerHibernate = true;

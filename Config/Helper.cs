@@ -29,10 +29,9 @@ namespace CnD_Sound;
 
 public class Helper
 {
-
     public static void AdvancedPlayerPrintToChat(CCSPlayerController player, string message, params object[] args)
     {
-        if (string.IsNullOrEmpty(message))return;
+        if (string.IsNullOrEmpty(message)) return;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -43,11 +42,17 @@ public class Helper
             string[] parts = Regex.Split(message, "{nextline}", RegexOptions.IgnoreCase);
             foreach (string part in parts)
             {
-                string messages = part.Trim();
-                player.PrintToChat(" " + messages);
+                string trimmedPart = part.Trim();
+                trimmedPart = trimmedPart.ReplaceColorTags();
+                if (!string.IsNullOrEmpty(trimmedPart))
+                {
+                    player.PrintToChat(" " + trimmedPart);
+                }
             }
-        }else
+        }
+        else
         {
+            message = message.ReplaceColorTags();
             player.PrintToChat(message);
         }
     }
@@ -230,7 +235,8 @@ public class Helper
                     steamId,
                     false,
                     Configs.GetConfigData().Default_Messages ? 1 : 2, 
-                    Configs.GetConfigData().Default_Sounds ? 1 : 2
+                    Configs.GetConfigData().Default_Sounds ? 1 : 2,
+                    DateTime.Now
                 );
                 g_Main.Player_Data.TryAdd(player, initialData);
             });
@@ -620,7 +626,7 @@ public class Helper
 
         if (g_Main.JsonData_Disconnect == null)
         {
-            Helper.DebugMessage("config/disconnect_reasons.json not loaded");
+            DebugMessage("config/disconnect_reasons.json not loaded");
             return "config/disconnect_reasons.json not loaded";
         }
 
