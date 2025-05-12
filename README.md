@@ -2,7 +2,7 @@
 
 <a href="https://discord.com/invite/U7AuQhu"><img src="https://discord.com/api/guilds/651838917687115806/widget.png?style=banner2"></a>
 
-# [CS2] Connect-Disconnect-Sound-GoldKingZ (1.1.2)
+# [CS2] Connect-Disconnect-Sound-GoldKingZ (1.1.3)
 
 Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
@@ -54,14 +54,13 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 > **Chat & Sound Configuration**  
 > `../Connect-Disconnect-Sound-GoldKingZ/config/connect_disconnect_config.json`
 
-## 🛠️ `config.json`
+## 🛠️ `config/config.json`
 
 <details open>
 <summary><b>Main Config</b> (Click to expand 🔽)</summary>
 
 | Property | Description | Values | Required |  
 |----------|-------------|--------|----------|
-| `CompatibilityWithCS2Fixes` | Compatibility With CS2Fixes | `true`-Yes<br>`false`-No | - |
 | `EarlyConnection` | Enable Early Connection | `true`-Yes<br>`false`-No | - |
 | `DisableLoopConnections` | Disable Looping Connections | `true`-Yes<br>`false`-No | - |
 | `DisableServerHibernate` | Disable Server Hibernation | `true`-Yes (Recommended)<br>`false`-No | - |
@@ -141,34 +140,38 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 </details>
 
 
-## 🛠️ `connect_disconnect_config.json`
+## 🛠️ `config/connect_disconnect_config.json`
 
 <details open>
 <summary><b>Connect Disconnect Config</b> (Click to expand 🔽)</summary>
 
-| Item | Description | Example |
-|------|-------------|---------|
-| **Colors** | | |
-| `{Yellow}` | Yellow text color | `{Yellow}Warning` |
-| `{Gold}` | Gold text color | `{Gold}[VIP]` |
-| `{Silver}` | Silver text color | `{Silver}Member` |
-| `{Blue}` | Blue text color | `{Blue}Info` |
-| `{DarkBlue}` | Dark blue text color | `{DarkBlue}Moderator` |
-| `{BlueGrey}` | Blue-grey text color | `{BlueGrey}System` |
-| `{Magenta}` | Magenta text color | `{Magenta}Event` |
-| `{LightRed}` | Light red text color | `{LightRed}Alert` |
-| `{LightBlue}` | Light blue text color | `{LightBlue}Note` |
-| `{Olive}` | Olive green text color | `{Olive}Team` |
-| `{Lime}` | Lime green text color | `{Lime}Success` |
-| `{Red}` | Red text color | `{Red}Error` |
-| `{Purple}` | Purple text color | `{Purple}Admin` |
-| `{Grey}` | Grey text color | `{Grey}Timestamp` |
-| `{Default}` | Default text color | `{Default}Message` |
-| `{White}` | White text color | `{White}Notification` |
-| `{Darkred}` | Dark red text color | `{Darkred}Banned` |
-| `{Green}` | Green text color | `{Green}Connected` |
-| `{LightYellow}` | Light yellow text color | `{LightYellow}Hint` |
-| **Other** | | |
+### **Colors**  
+| Color Tag | Example |
+|-----------|---------|
+| `{Yellow}` | `{Yellow}Warning Message` |
+| `{Gold}` | `{Gold}[VIP] Player` |
+| `{Silver}` | `{Silver}Regular Member` |
+| `{Blue}` | `{Blue}Information` |
+| `{DarkBlue}` | `{DarkBlue}Moderator Tag` |
+| `{BlueGrey}` | `{BlueGrey}System Alert` |
+| `{Magenta}` | `{Magenta}Event Notification` |
+| `{LightRed}` | `{LightRed}Urgent Alert` |
+| `{LightBlue}` | `{LightBlue}Server Note` |
+| `{Olive}` | `{Olive}Team Chat` |
+| `{Lime}` | `{Lime}Success Message` |
+| `{Red}` | `{Red}Error!` |
+| `{Purple}` | `{Purple}Admin Command` |
+| `{Grey}` | `{Grey}12:00:00` |
+| `{Default}` | `{Default}Normal Text` |
+| `{White}` | `{White}Notification` |
+| `{Darkred}` | `{Darkred}Banned!` |
+| `{Green}` | `{Green}Connected` |
+| `{LightYellow}` | `{LightYellow}Hint Text` |
+
+
+### **Format**  
+| Key | Description | Values/Examples |
+|-----|-------------|-----------------|
 | `"ANY"` | Applies to all non-specified players | `"ANY": { ... }` |
 | `@css/admins` | Targets players with admin flags | `@css/vip` |
 | `#css/admins` | Targets player groups | `#css/regulars` |
@@ -179,7 +182,10 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 | `DISCONNECT_MESSAGE_CHAT` | Disconnect message template | `"{Red}{PLAYERNAME} left"` |
 | `DISCONNECT_SOUND_VOLUME` | Disconnect sound volume (1-100%) | `"60%"` |
 | `DISCONNECT_SOUND` | Disconnect sound file paths | `["ui/item_drop.vsnd"]` |
-| **Placeholders** | | |
+
+### **Placeholders**  
+| Placeholder | Description | Example Output |
+|-------------|-------------|----------------|
 | `{NEXTLINE}` | Creates line break in messages | `"Line1{NEXTLINE}Line2"` |
 | `{DATE}` | Current date (from main config format) | `12-31-2023` |
 | `{TIME}` | Current time (from main config format) | `23:59:59` |
@@ -204,6 +210,12 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
 <details>
 <summary><b>📋 View Version History</b> (Click to expand 🔽)</summary>
+
+### [1.1.3]
+- Removed CompatibilityWithCS2Fixes On By Default
+- Rework On Players Permissions
+- Fix `connect_disconnect_config.json` When Player Have Flag Not Getting His Disconnect (Message/Sounds/Vol)
+- Fix Default Of `CONNECT_SOUND_VOLUME`/`DISCONNECT_SOUND_VOLUME` Value If Not Found Now Its `100%` If Not Found
 
 ### [1.1.2]
 - Added CompatibilityWithCS2Fixes
