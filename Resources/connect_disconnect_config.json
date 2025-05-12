@@ -51,23 +51,23 @@
 		"DISCONNECT_MESSAGE_CHAT": "{darkred}{PLAYERNAME} ({gold}{STEAMID}{darkred}) connected from [{SHORTCOUNTRY} | {CITY}]",
 		"DISCONNECT_SOUND": ["sounds/player/taunt_clap_01.vsnd"]
 	},
-	"@css/admins,#css/admins":
-	{
-		"CONNECT_MESSAGE_CHAT": "{Purple}[ADMIN] {green}{PLAYERNAME} ({gold}{STEAMID}{green}) connected from [{SHORTCOUNTRY} | {CITY}]",
-		"CONNECT_SOUND_VOLUME": "40%",
-		"CONNECT_SOUND": ["UI.StickerApply"],
-
-		"DISCONNECT_MESSAGE_CHAT": "{Purple}[ADMIN] {darkred}{PLAYERNAME} ({gold}{STEAMID}{darkred}) connected from [{SHORTCOUNTRY} | {CITY}]",
-		"DISCONNECT_SOUND_VOLUME": "40%",
-		"DISCONNECT_SOUND": ["PanoramaUI.Chatwheel.Alert"],
-	},
-	"!76561198206086993,!76561198974936845":
+	"SteamID: 76561198206086993,76561198974936845":
 	{
 		"CONNECT_MESSAGE_CHAT": "{purple}------------------------ [Owner] ------------------------ {NEXTLINE} {green}{PLAYERNAME} ({gold}{STEAMID}{green}) connected from [{SHORTCOUNTRY} | {CITY}] {NEXTLINE} {purple}----------------------------------------------------------",
 		"CONNECT_SOUND_VOLUME": "40%",
 		"CONNECT_SOUND": ["UIPanorama.round_report_round_lost"],
 
 		"DISCONNECT_MESSAGE_CHAT": "{purple}------------------------ [Owner] ------------------------ {NEXTLINE} {darkred}{PLAYERNAME} ({gold}{STEAMID}{darkred}) connected from [{SHORTCOUNTRY} | {CITY}] {NEXTLINE} {purple}----------------------------------------------------------",
+		"DISCONNECT_SOUND_VOLUME": "40%",
+		"DISCONNECT_SOUND": ["PanoramaUI.Chatwheel.Alert"],
+	},
+	"Flags: @css/admins,@css/admin | Group: #css/admins,#css/admin":
+	{
+		"CONNECT_MESSAGE_CHAT": "{Purple}[ADMIN] {green}{PLAYERNAME} ({gold}{STEAMID}{green}) connected from [{SHORTCOUNTRY} | {CITY}]",
+		"CONNECT_SOUND_VOLUME": "40%",
+		"CONNECT_SOUND": ["UI.StickerApply"],
+
+		"DISCONNECT_MESSAGE_CHAT": "{Purple}[ADMIN] {darkred}{PLAYERNAME} ({gold}{STEAMID}{darkred}) connected from [{SHORTCOUNTRY} | {CITY}]",
 		"DISCONNECT_SOUND_VOLUME": "40%",
 		"DISCONNECT_SOUND": ["PanoramaUI.Chatwheel.Alert"],
 	}
