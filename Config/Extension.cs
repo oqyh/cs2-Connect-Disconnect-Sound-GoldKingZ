@@ -102,4 +102,16 @@ public static class Extension
             return result;
         }
     }
+    private const ulong Steam64Offset = 76561197960265728UL;
+    public static (string steam2, string steam3, string steam32, string steam64)GetPlayerSteamID(this ulong steamId64)
+    {
+        uint id32 = (uint)(steamId64 - Steam64Offset);
+        var steam32 = id32.ToString();
+        uint y = id32 & 1;
+        uint z = id32 >> 1;
+        var steam2 = $"STEAM_0:{y}:{z}";
+        var steam3 = $"[U:1:{steam32}]";
+        var steam64 = steamId64.ToString();
+        return (steam2, steam3, steam32, steam64);
+    }
 }

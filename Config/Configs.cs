@@ -90,25 +90,72 @@ namespace CnD_Sound.Config
             Helper.CreateResource(_PrecacheResources);
 
             _configFilePath = Path.Combine(configFileDirectory, ConfigFileName);
+            var defaultConfig = new ConfigData();
             if (File.Exists(_configFilePath))
             {
-                _configData = JsonSerializer.Deserialize<ConfigData>(File.ReadAllText(_configFilePath), SerializationOptions);
+                try
+                {
+                    _configData = JsonSerializer.Deserialize<ConfigData>(File.ReadAllText(_configFilePath), SerializationOptions);
+                }
+                catch (JsonException)
+                {
+                    _configData = MergeConfigWithDefaults(_configFilePath, defaultConfig);
+                }
+                
                 _configData!.Validate();
             }
             else
             {
-                _configData = new ConfigData();
+                _configData = defaultConfig;
                 _configData.Validate();
             }
 
-            if (_configData is null)
-            {
-                throw new Exception("Failed to load configs.");
-            }
-
             SaveConfigData(_configData);
-            
             return _configData;
+        }
+
+        private static ConfigData MergeConfigWithDefaults(string path, ConfigData defaults)
+        {
+            var mergedConfig = new ConfigData();
+            var jsonText = File.ReadAllText(path);
+            
+            var readerOptions = new JsonReaderOptions 
+            { 
+                AllowTrailingCommas = true,
+                CommentHandling = JsonCommentHandling.Skip 
+            };
+
+            using var doc = JsonDocument.Parse(jsonText, new JsonDocumentOptions
+            {
+                AllowTrailingCommas = true,
+                CommentHandling = JsonCommentHandling.Skip
+            });
+            
+            foreach (var jsonProp in doc.RootElement.EnumerateObject())
+            {
+                var propInfo = typeof(ConfigData).GetProperty(jsonProp.Name);
+                if (propInfo == null) continue;
+
+                try
+                {
+                    var jsonValue = JsonSerializer.Deserialize(
+                        jsonProp.Value.GetRawText(), 
+                        propInfo.PropertyType,
+                        new JsonSerializerOptions
+                        {
+                            Converters = { new JsonStringEnumConverter() },
+                            ReadCommentHandling = JsonCommentHandling.Skip
+                        }
+                    );
+                    propInfo.SetValue(mergedConfig, jsonValue);
+                }
+                catch (JsonException)
+                {
+                    propInfo.SetValue(mergedConfig, propInfo.GetValue(defaults));
+                }
+            }
+            
+            return mergedConfig;
         }
 
         private static void SaveConfigData(ConfigData configData)
@@ -116,9 +163,8 @@ namespace CnD_Sound.Config
             if (_configFilePath is null)
                 throw new Exception("Config not yet loaded.");
 
-            string json = JsonSerializer.Serialize(configData, SerializationOptions);
-            json = Regex.Unescape(json);
-
+            var json = JsonSerializer.Serialize(configData, SerializationOptions);
+            
             var lines = json.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
             var newLines = new List<string>();
 
@@ -223,9 +269,6 @@ namespace CnD_Sound.Config
 
             [BreakLine("{space}----------------------------[ ↓ Main Config ↓ ]----------------------------{space}")]
 
-            [Comment("Compatibility With CS2Fixes?\ntrue = Yes")]
-            public bool CompatibilityWithCS2Fixes { get; set; }
-
             [Comment("Enable Early Connection Of The Players?\ntrue = Yes\nfalse = No (Wait When Player Fully Connected)")]
             public bool EarlyConnection { get; set; }
 
@@ -242,17 +285,16 @@ namespace CnD_Sound.Config
             [Range(0, 2, 0, "[CnD] RemoveDefaultDisconnect: is invalid, setting to default value (2) Please Choose From 0 To 2.\n[CnD] 0 = No\n[CnD] 1 = Yes Completely\n[CnD] 2 = Yes Completely Also Remove Disconnect Icon In Killfeed")]
             public int RemoveDefaultDisconnect { get; set; }
 
-            [Comment("Commands Toggle On/Off To Sounds\n\"\" = Disable")]
+            [Comment("Commands To Toggle On/Off Sounds\n\"\" = Disable")]
             public string Toggle_Sounds_CommandsInGame { get; set; }
 
-            [Comment("Required [Toggle_Sounds_Flags]\nToggle On/Off To Sounds\nExample:\n\"!76561198206086993,@css/include,#css/include,include\"\n\"\" = To Allow Everyone")]
+            [Comment("Required [Toggle_Sounds_CommandsInGame]\nFlags Or Group Or SteamID To Toggle On/Off Sounds\nExample:\n\"SteamID: 76561198206086993,76561198974936845 | Flag: @css/vips,@css/admins | Group: #css/vips,#css/admins\"\n\"\" = To Allow Everyone")]
             public string Toggle_Sounds_Flags { get; set; }
 
-
-            [Comment("Commands Toggle On/Off To Messages Connect/Disconnect\n\"\" = Disable")]
+            [Comment("Commands To Toggle On/Off Messages Connect/Disconnect\n\"\" = Disable")]
             public string Toggle_Messages_CommandsInGame { get; set; }
 
-            [Comment("Required [Toggle_Messages_CommandsInGame]\nToggle On/Off To Messages Connect/Disconnect\nExample:\n\"!76561198206086993,@css/include,#css/include,include\"\n\"\" = To Allow Everyone")]
+            [Comment("Required [Toggle_Messages_CommandsInGame]\nFlags Or Group Or SteamID To Toggle On/Off Messages Connect/Disconnect\nExample:\n\"SteamID: 76561198206086993,76561198974936845 | Flag: @css/vips,@css/admins | Group: #css/vips,#css/admins\"\n\"\" = To Allow Everyone")]
             public string Toggle_Messages_Flags { get; set; }
 
             [Comment("Default Value Of Sounds To New Players?\ntrue = On\nfalse = Off")]
@@ -370,16 +412,15 @@ namespace CnD_Sound.Config
                 Version = MainPlugin.Instance.ModuleVersion;
                 Link = "https://github.com/oqyh/cs2-Connect-Disconnect-Sound-GoldKingZ";
 
-                CompatibilityWithCS2Fixes = true;
                 EarlyConnection = true;
                 DisableLoopConnections = true;
                 DisableServerHibernate = true;
                 PickRandomSounds = true;
                 RemoveDefaultDisconnect = 2;
                 Toggle_Sounds_CommandsInGame  = "!sound,!sounds";
-                Toggle_Sounds_Flags  = "@css/vvip,#css/vvip";
+                Toggle_Sounds_Flags  = "SteamID: 76561198206086993,76561198974936845 | Flag: @css/vips,@css/admins | Group: #css/vips,#css/admins";
                 Toggle_Messages_CommandsInGame  = "!message,!message";
-                Toggle_Messages_Flags  = "@css/vvip,#css/vvip";
+                Toggle_Messages_Flags  = "SteamID: 76561198206086993,76561198974936845 | Flag: @css/vips,@css/admins | Group: #css/vips,#css/admins";
                 Default_Sounds = true;
                 Default_Messages = true;
                 DateFormat = "MM-dd-yyyy";

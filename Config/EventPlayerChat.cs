@@ -36,14 +36,8 @@ public class PlayerChat
 	{
         if (!player.IsValid() || !MainPlugin.Instance.g_Main.Player_Data.ContainsKey(player))return HookResult.Continue;
 
-        if (Configs.GetConfigData().CompatibilityWithCS2Fixes)
-        {
-            if((DateTime.Now - MainPlugin.Instance.g_Main.Player_Data[player].Time).TotalSeconds < 2)
-            {
-                return HookResult.Continue;
-            }
-            MainPlugin.Instance.g_Main.Player_Data[player].Time = DateTime.Now;
-        }
+        if((DateTime.Now - MainPlugin.Instance.g_Main.Player_Data[player].CS2Fixes).TotalSeconds < 0.1)return HookResult.Continue;
+        MainPlugin.Instance.g_Main.Player_Data[player].CS2Fixes = DateTime.Now;
 
         var playerid = player.SteamID;
         var eventmessage = info.ArgString;

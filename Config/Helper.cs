@@ -113,37 +113,68 @@ public class Helper
     
     public static bool IsPlayerInGroupPermission(CCSPlayerController player, string groups)
     {
-        if (string.IsNullOrEmpty(groups))
-        {
+        if (string.IsNullOrEmpty(groups) || player == null || !player.IsValid)
             return false;
-        }
-        var Groups = groups.Split(',');
-        foreach (var group in Groups)
+
+        return groups.Split('|')
+            .Select(segment => segment.Trim())
+            .Any(trimmedSegment => Permission_CheckPermissionSegment(player, trimmedSegment));
+    }
+
+    private static bool Permission_CheckPermissionSegment(CCSPlayerController player, string segment)
+    {
+        if (string.IsNullOrEmpty(segment))
+            return false;
+
+        int colonIndex = segment.IndexOf(':');
+
+        if (colonIndex == -1 || colonIndex == 0)
+            return false;
+
+        string prefix = segment.Substring(0, colonIndex).Trim().ToLower();
+        string values = segment.Substring(colonIndex + 1).Trim();
+
+        return prefix switch
         {
-            if (string.IsNullOrEmpty(group))
-            {
-                continue;
-            }
-            string groupId = group[0] == '!' ? group.Substring(1) : group;
-            if (group[0] == '#' && AdminManager.PlayerInGroup(player, group))
-            {
-                return true;
-            }
-            else if (group[0] == '@' && AdminManager.PlayerHasPermissions(player, group))
-            {
-                return true;
-            }
-            else if (group[0] == '!' && player.AuthorizedSteamID != null && (groupId == player.AuthorizedSteamID.SteamId2.ToString() || groupId == player.AuthorizedSteamID.SteamId3.ToString().Trim('[', ']') ||
-            groupId == player.AuthorizedSteamID.SteamId32.ToString() || groupId == player.AuthorizedSteamID.SteamId64.ToString()))
-            {
-                return true;
-            }
-            else if (AdminManager.PlayerInGroup(player, group))
-            {
-                return true;
-            }
-        }
-        return false;
+            "steamid" or "steamids" or "steam" or "steams" => Permission_CheckSteamIds(player, values),
+            "flag" or "flags" => Permission_CheckFlags(player, values),
+            "group" or "groups" => Permission_CheckGroups(player, values),
+            _ => false
+        };
+    }
+
+    private static bool Permission_CheckSteamIds(CCSPlayerController player, string steamIds)
+    {
+        steamIds = steamIds.Replace("[", "").Replace("]", "");
+
+        var (steam2, steam3, steam32, steam64) = player.SteamID.GetPlayerSteamID();
+        var steam3NoBrackets = steam3.Trim('[', ']');
+
+        return steamIds
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(id => id.Trim())
+            .Any(trimmedId =>
+                string.Equals(trimmedId, steam2,   StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(trimmedId, steam3NoBrackets, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(trimmedId, steam32,  StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(trimmedId, steam64,  StringComparison.OrdinalIgnoreCase)
+            );
+    }
+
+    private static bool Permission_CheckFlags(CCSPlayerController player, string flags)
+    {
+        return flags.Split(',')
+            .Select(flag => flag.Trim())
+            .Where(trimmedFlag => trimmedFlag.StartsWith("@"))
+            .Any(trimmedFlag => AdminManager.PlayerHasPermissions(player, trimmedFlag));
+    }
+
+    private static bool Permission_CheckGroups(CCSPlayerController player, string groups)
+    {
+        return groups.Split(',')
+            .Select(group => group.Trim())
+            .Where(trimmedGroup => trimmedGroup.StartsWith("#"))
+            .Any(trimmedGroup => AdminManager.PlayerInGroup(player, trimmedGroup));
     }
     public static List<CCSPlayerController> GetPlayersController(bool IncludeBots = false, bool IncludeHLTV = false, bool IncludeNone = true, bool IncludeSPEC = true, bool IncludeCT = true, bool IncludeT = true) 
     {
@@ -189,8 +220,8 @@ public class Helper
     public static void CreateResource(string jsonFilePath)
     {
         string headerLine = "////// vvvvvv Add Paths For Precache Resources Down vvvvvvvvvv //////";
-        string headerLine2 = "soundevents/goldkingz_sounds.vsndevts";
-        string headerLine3 = "soundevents/addons_goldkingz_sounds.vsndevts";
+        string headerLine2 = "// soundevents/goldkingz_sounds.vsndevts";
+        string headerLine3 = "// soundevents/addons_goldkingz_sounds.vsndevts";
         if (!File.Exists(jsonFilePath))
         {
             using (StreamWriter sw = File.CreateText(jsonFilePath))
@@ -217,6 +248,23 @@ public class Helper
         }
     }
 
+    public static void CheckPlayerInGlobals(CCSPlayerController player)
+    {
+        var g_Main = MainPlugin.Instance.g_Main;
+        if(!player.IsValid() || g_Main.Player_Data.ContainsKey(player))return;
+
+
+        var initialData = new Globals.PlayerDataClass(
+            player,
+            player.SteamID,
+            false,
+            Configs.GetConfigData().Default_Messages ? 1 : 2, 
+            Configs.GetConfigData().Default_Sounds ? 1 : 2,
+            DateTime.Now
+        );
+        g_Main.Player_Data.TryAdd(player, initialData);
+    }
+
     public static async Task LoadPlayerData(CCSPlayerController player)
     {
         try
@@ -230,15 +278,7 @@ public class Helper
             {
                 if (!player.IsValid()) return;
 
-                var initialData = new Globals.PlayerDataClass(
-                    player,
-                    steamId,
-                    false,
-                    Configs.GetConfigData().Default_Messages ? 1 : 2, 
-                    Configs.GetConfigData().Default_Sounds ? 1 : 2,
-                    DateTime.Now
-                );
-                g_Main.Player_Data.TryAdd(player, initialData);
+                CheckPlayerInGlobals(player);
             });
 
             if (Configs.GetConfigData().Cookies_Enable)
@@ -974,7 +1014,7 @@ public class Helper
         return (
             target.Value<string>($"{type}_MESSAGE_CHAT") ?? "",
             ParseSounds(target[$"{type}_SOUND"]!),
-            target.Value<string>($"{type}_SOUND_VOLUME") ?? ""
+            target.Value<string>($"{type}_SOUND_VOLUME") ?? "100%"
         );
     }
 

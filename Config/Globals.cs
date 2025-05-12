@@ -25,15 +25,15 @@ public class Globals
         public bool Remove_Icon { get; set; }
         public int Toggle_Messages { get; set; }
         public int Toggle_Sounds { get; set; }
-        public DateTime Time { get; set; }
-        public PlayerDataClass(CCSPlayerController player, ulong steamId, bool remove_Icon, int toggle_Messages, int toggle_Sounds, DateTime time)
+        public DateTime CS2Fixes { get; set; }
+        public PlayerDataClass(CCSPlayerController player, ulong steamId, bool remove_Icon, int toggle_Messages, int toggle_Sounds, DateTime CS2Fixess)
         {
             Player = player;
             SteamId = steamId;
             Remove_Icon = remove_Icon;
             Toggle_Messages = toggle_Messages;
             Toggle_Sounds = toggle_Sounds;
-            Time = time;
+            CS2Fixes = CS2Fixess;
         }
     }
     public Dictionary<CCSPlayerController, PlayerDataClass> Player_Data = new Dictionary<CCSPlayerController, PlayerDataClass>();

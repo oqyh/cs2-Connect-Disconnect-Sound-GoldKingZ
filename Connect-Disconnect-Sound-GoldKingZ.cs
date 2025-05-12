@@ -16,7 +16,7 @@ namespace CnD_Sound;
 public class MainPlugin : BasePlugin
 {
     public override string ModuleName => "Connect Disconnect Sound (Continent , Country , City , Message , Sounds , Logs , Discord)";
-    public override string ModuleVersion => "1.1.2";
+    public override string ModuleVersion => "1.1.3";
     public override string ModuleAuthor => "Gold KingZ";
     public override string ModuleDescription => "https://github.com/oqyh";
     public static MainPlugin Instance { get; set; } = new();
@@ -79,6 +79,12 @@ public class MainPlugin : BasePlugin
                         Helper.DebugMessage($"hotReload error: {ex.Message}");
                     }
                 });
+            }
+
+            foreach(var players in Helper.GetPlayersController(false, false, false, true, true, true))
+            {
+                if(!players.IsValid())continue;
+                Helper.CheckPlayerInGlobals(players);
             }
         }
     }
@@ -196,11 +202,7 @@ public class MainPlugin : BasePlugin
             if (!player.IsValid()) return;
 
             var playername = player.PlayerName;
-            var playersteamid = player.SteamID;
-            var playersteamId2 = player.AuthorizedSteamID?.SteamId2 ?? Localizer["invalid.steamid"];
-            var playersteamId3 = player.AuthorizedSteamID?.SteamId3 ?? Localizer["invalid.steamid"];
-            var playersteamId32 = player.AuthorizedSteamID?.SteamId32.ToString() ?? Localizer["invalid.steamid"];
-            var playersteamId64 = player.AuthorizedSteamID?.SteamId64.ToString() ?? Localizer["invalid.steamid"];
+            var (playersteamId2, playersteamId3, playersteamId32, playersteamId64) = player.SteamID.GetPlayerSteamID();
             var playerip = player.IpAddress?.Split(':')[0] ?? Localizer["InValidIpAddress"];
 
             if(!Disconnect)
@@ -215,8 +217,8 @@ public class MainPlugin : BasePlugin
                 if (!player.IsValid() || !g_Main.Player_Data.ContainsKey(player))return;
 
                 var (ConnectionSettingsMessage, ConnectionSettingsSound, ConnectionSettingsSoundVolume) = Helper.GetPlayerConnectionSettings(player, Disconnect?"DISCONNECT":"CONNECT");
-                string formatted = "";
-
+                string formatted = "";                
+                
                 if (!string.IsNullOrEmpty(ConnectionSettingsMessage))
                 {
                     formatted = ConnectionSettingsMessage.ReplaceMessages(
@@ -255,7 +257,7 @@ public class MainPlugin : BasePlugin
                             allplayers.ExecuteClientCommand($"play {nextSound}");
                         }else
                         {
-                            float SoundVolume = ConnectionSettingsSoundVolume.ToPercentageFloat();
+                            float SoundVolume = ConnectionSettingsSoundVolume!.ToPercentageFloat();
                             RecipientFilter filter = [allplayers];
                             allplayers.EmitSound(nextSound, filter, (float)SoundVolume);
                         }
@@ -415,13 +417,10 @@ public class MainPlugin : BasePlugin
         }
     }
 
-
     /* [ConsoleCommand("css_test", "test")]
     [CommandHelper(whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void test(CCSPlayerController? player, CommandInfo commandInfo)
     {
         if(!player.IsValid())return;
-        
     } */
-    
 }
