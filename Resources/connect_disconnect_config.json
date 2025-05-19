@@ -8,9 +8,9 @@
 //        Other
 //==========================
 //  "ANY" = If Player Not Special
-//  "@css/admins" = Flags
-//  "#css/admins" = Group
-//  "!STEAM_0:1:122910632,!U:1:245821265,!245821265,!76561198206086993" = Player
+//  "Flags : @css/admins,@css/admin" = Flags
+//  "Group : #css/admins,#css/admin" = Group
+//  "SteamID : STEAM_0:1:122910632,U:1:245821265,76561198206086993" = Player
 //  "CONNECT_MESSAGE_CHAT"  = Connect Message Format (If Not Used Will Be No Connect Message)
 //  "CONNECT_SOUND_VOLUME"  = Connect Volume Of CONNECT_SOUND Note: Must Be Not Start With sounds/ (If Not Used Default Value Will Be 50%)
 //  "CONNECT_SOUND"  = Connect Sounds (If Not Used Will Be No Connect Sound)
