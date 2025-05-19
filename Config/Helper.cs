@@ -1,42 +1,45 @@
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Drawing;
+using System.Security.Cryptography;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Admin;
-using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Utils;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using System.Text.Json;
-using CnD_Sound.Config;
-using System.Text.Encodings.Web;
-using System.Text;
-using System.Drawing;
 using CounterStrikeSharp.API.Modules.Cvars;
-using System.Runtime.InteropServices;
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System;
-using System.Net.NetworkInformation;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
+using CounterStrikeSharp.API.Modules.Commands;
 using CounterStrikeSharp.API.Core.Translations;
+using Newtonsoft.Json;
 using MaxMind.GeoIP2;
 using MaxMind.GeoIP2.Exceptions;
-using System.Security.Cryptography;
-
+using Newtonsoft.Json.Linq;
+using CnD_Sound.Config;
 
 namespace CnD_Sound;
 
 public class Helper
 {
-    public static void AdvancedPlayerPrintToChat(CCSPlayerController player, string message, params object[] args)
+    public static void RegisterCssCommands(string[] commands, string description, CommandInfo.CommandCallback callback)
+    {
+        foreach (var cmd in commands)
+        {
+            if (cmd.StartsWith("css_"))
+            {
+                MainPlugin.Instance.AddCommand(cmd, description, callback);
+            }
+        }
+    }
+
+    public static void AdvancedPlayerPrintToChat(CCSPlayerController player, CounterStrikeSharp.API.Modules.Commands.CommandInfo commandInfo, string message, params object[] args)
     {
         if (string.IsNullOrEmpty(message)) return;
 
         for (int i = 0; i < args.Length; i++)
         {
-            message = message.Replace($"{{{i}}}", args[i].ToString());
+            message = message.Replace($"{{{i}}}", args[i]?.ToString() ?? "");
         }
+
         if (Regex.IsMatch(message, "{nextline}", RegexOptions.IgnoreCase))
         {
             string[] parts = Regex.Split(message, "{nextline}", RegexOptions.IgnoreCase);
@@ -46,14 +49,28 @@ public class Helper
                 trimmedPart = trimmedPart.ReplaceColorTags();
                 if (!string.IsNullOrEmpty(trimmedPart))
                 {
-                    player.PrintToChat(" " + trimmedPart);
+                    if (commandInfo != null && commandInfo.CallingContext == CounterStrikeSharp.API.Modules.Commands.CommandCallingContext.Console)
+                    {
+                        player.PrintToConsole(" " + trimmedPart);
+                    }
+                    else
+                    {
+                        player.PrintToChat(" " + trimmedPart);
+                    }
                 }
             }
         }
         else
         {
             message = message.ReplaceColorTags();
-            player.PrintToChat(message);
+            if (commandInfo != null && commandInfo.CallingContext == CounterStrikeSharp.API.Modules.Commands.CommandCallingContext.Console)
+            {
+                player.PrintToConsole(message);
+            }
+            else
+            {
+                player.PrintToChat(message);
+            }
         }
     }
     public static void AdvancedPlayerPrintToConsole(CCSPlayerController player, string message, params object[] args)
@@ -208,9 +225,8 @@ public class Helper
     public static void ClearVariables()
     {
         var g_Main = MainPlugin.Instance.g_Main;
-        
+
         SavePlayersValues();
-        g_Main.OnLoop.Clear();
         g_Main.randomQueues.Clear();
         g_Main.sequentialIndices.Clear();
         g_Main.JsonData_Disconnect = null;
@@ -326,17 +342,16 @@ public class Helper
 
     private static void UpdatePlayerData(CCSPlayerController player, Globals_Static.PersonData data)
     {
-        if (!player.IsValid() || !MainPlugin.Instance.g_Main.Player_Data.ContainsKey(player))return;
-        if (!MainPlugin.Instance.g_Main.Player_Data.TryGetValue(player, out var handle))return;
-
-        if(data.Toggle_Messages < 0 || data.Toggle_Sounds < 0)
+        if (!player.IsValid() || !MainPlugin.Instance.g_Main.Player_Data.TryGetValue(player, out var handle))return;
+        
+        if (data.Toggle_Messages < 0 || data.Toggle_Sounds < 0)
         {
-            if(data.Toggle_Messages < 0)
+            if (data.Toggle_Messages < 0)
             {
                 handle.Toggle_Messages = data.Toggle_Messages;
             }
 
-            if(data.Toggle_Sounds < 0)
+            if (data.Toggle_Sounds < 0)
             {
                 handle.Toggle_Sounds = data.Toggle_Sounds;
             }

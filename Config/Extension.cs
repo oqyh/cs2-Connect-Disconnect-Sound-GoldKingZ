@@ -114,4 +114,24 @@ public static class Extension
         var steam64 = steamId64.ToString();
         return (steam2, steam3, steam32, steam64);
     }
+
+    public static string[] GetCommands(this string csv, bool toChat = false)
+    {
+        return csv
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(cmd => cmd.Trim())
+            .Select(cmd =>
+                toChat
+                    ? cmd.StartsWith("css_")
+                        ? "!" + cmd[4..]
+                        : cmd
+                    : cmd.StartsWith("!")
+                        ? "css_" + cmd[1..]
+                        : cmd
+            )
+            .Select(cmd => cmd.ToLowerInvariant())
+            .Distinct()
+            .ToArray();
+    }
+
 }

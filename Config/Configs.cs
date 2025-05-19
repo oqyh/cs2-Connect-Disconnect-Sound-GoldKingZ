@@ -272,8 +272,8 @@ namespace CnD_Sound.Config
             [Comment("Enable Early Connection Of The Players?\ntrue = Yes\nfalse = No (Wait When Player Fully Connected)")]
             public bool EarlyConnection { get; set; }
 
-            [Comment("Disable Looping Connections To Anti Spam Chat?\ntrue = Yes\nfalse = No")]
-            public bool DisableLoopConnections { get; set; }
+            [Comment("Ignore These Disconnect Reasons Add , For Multiple Reasons Check In disconnect_reasons.json\n\"\" = Disable")]
+            public string IgnoreTheseDisconnectReasons { get; set; }
 
             [Comment("Make sv_hibernate_when_empty false?\nWhy? It is Important To Disable sv_hibernate_when_empty Otherwise Will Bug Log Last Player Disconnect From The Server\ntrue = Yes (Recommended)\nfalse = No")]
             public bool DisableServerHibernate { get; set; }
@@ -285,23 +285,32 @@ namespace CnD_Sound.Config
             [Range(0, 2, 0, "[CnD] RemoveDefaultDisconnect: is invalid, setting to default value (2) Please Choose From 0 To 2.\n[CnD] 0 = No\n[CnD] 1 = Yes Completely\n[CnD] 2 = Yes Completely Also Remove Disconnect Icon In Killfeed")]
             public int RemoveDefaultDisconnect { get; set; }
 
-            [Comment("Commands To Toggle On/Off Sounds\n\"\" = Disable")]
+            [Comment("Default Value Of Sounds To New Players?\ntrue = On\nfalse = Off")]
+            public bool Default_Sounds { get; set; }
+
+            [Comment("Commands To Toggle On/Off Sounds\nNote: If The Command Starts With '!' or 'css_' You Will Have The Ability To Toggle It On The Console And Chat\n\"\" = Disable")]
             public string Toggle_Sounds_CommandsInGame { get; set; }
 
             [Comment("Required [Toggle_Sounds_CommandsInGame]\nFlags Or Group Or SteamID To Toggle On/Off Sounds\nExample:\n\"SteamID: 76561198206086993,76561198974936845 | Flag: @css/vips,@css/admins | Group: #css/vips,#css/admins\"\n\"\" = To Allow Everyone")]
             public string Toggle_Sounds_Flags { get; set; }
 
-            [Comment("Commands To Toggle On/Off Messages Connect/Disconnect\n\"\" = Disable")]
+            [Comment("Required [Toggle_Sounds_CommandsInGame]\nHide Chat After Toggle Successfully?\ntrue = Yes\nfalse = No")]
+            public bool Toggle_Sounds_Hide { get; set; }
+
+            [Comment("Default Value Of Messages To New Players?\ntrue = On\nfalse = Off")]
+            public bool Default_Messages { get; set; }
+
+            [Comment("Commands To Toggle On/Off Messages Connect/Disconnect\nNote: If The Command Starts With '!' or 'css_' You Will Have The Ability To Toggle It On The Console And Chat\n\"\" = Disable")]
             public string Toggle_Messages_CommandsInGame { get; set; }
 
             [Comment("Required [Toggle_Messages_CommandsInGame]\nFlags Or Group Or SteamID To Toggle On/Off Messages Connect/Disconnect\nExample:\n\"SteamID: 76561198206086993,76561198974936845 | Flag: @css/vips,@css/admins | Group: #css/vips,#css/admins\"\n\"\" = To Allow Everyone")]
             public string Toggle_Messages_Flags { get; set; }
 
-            [Comment("Default Value Of Sounds To New Players?\ntrue = On\nfalse = Off")]
-            public bool Default_Sounds { get; set; }
+            [Comment("Required [Toggle_Messages_CommandsInGame]\nHide Chat After Toggle Successfully?\ntrue = Yes\nfalse = No")]
+            public bool Toggle_Messages_Hide { get; set; }
 
-            [Comment("Default Value Of Messages To New Players?\ntrue = On\nfalse = Off")]
-            public bool Default_Messages { get; set; }
+            
+
             [Comment("How Do You Like Date Format Message\nExamples:\ndd MM yyyy = 25 12 2023\nMM/dd/yy = 12/25/23\nMM-dd-yyyy = 12-25-2025")]
             public string DateFormat { get; set; }
 
@@ -312,17 +321,17 @@ namespace CnD_Sound.Config
             [Comment("Log Connect/Disconnect Locally (In ../Connect-Disconnect-Sound-GoldKingZ/logs/)?\ntrue = Yes\nfalse = No")]
             public bool Log_Locally_Enable { get; set; }
 
-            [Comment("Required [Log_Locally_Enable = true]\nHow Do You Like Date Format\nExamples:\ndd MM yyyy = 25 12 2023\nMM/dd/yy = 12/25/23\nMM-dd-yyyy = 12-25-2025")]
-            public string Log_Locally_DateFormat { get; set; }
-
-            [Comment("Required [Log_Locally_Enable = true]\nHow Do You Like Time Format\nExamples:\nHH:mm = 14:30\nhh:mm a = 02:30 PM\nHH:mm:ss = 14:30:45")]
-            public string Log_Locally_TimeFormat { get; set; }
-
             [Comment("Required [Log_Locally_Enable = true]\nHow Do You Like Connect Message Format\n{DATE} = Log_Locally_DateFormat\n{TIME} = Log_Locally_TimeFormat\n{PLAYERNAME} = Player Name\n{STEAMID} = STEAM_0:1:122910632\n{STEAMID3} = U:1:245821265\n{STEAMID32} = 245821265\n{STEAMID64} = 76561198206086993\n{IP} = 123.45.67.89\n{CONTINENT} = Asia\n{LONGCOUNTRY} = United Arab Emirates\n{SHORTCOUNTRY} = AE\n{CITY} = Abu Dhabi\"\n\"\" = Disable")]
             public string Log_Locally_Connect_Format { get; set; }
 
             [Comment("Required [Log_Locally_Enable = true]\nHow Do You Like Disconnect Message Format\n{DATE} = Log_Locally_DateFormat\n{TIME} = Log_Locally_TimeFormat\n{PLAYERNAME} = Player Name\n{STEAMID} = STEAM_0:1:122910632\n{STEAMID3} = U:1:245821265\n{STEAMID32} = 245821265\n{STEAMID64} = 76561198206086993\n{IP} = 123.45.67.89\n{CONTINENT} = Asia\n{LONGCOUNTRY} = United Arab Emirates\n{SHORTCOUNTRY} = AE\n{CITY} = Abu Dhabi\n{DISCONNECT_REASON} = Disconnect Reason\"\n\"\" = Disable")]
             public string Log_Locally_Disconnect_Format { get; set; }
+
+            [Comment("Required [Log_Locally_Enable = true]\nHow Do You Like Date Format\nExamples:\ndd MM yyyy = 25 12 2023\nMM/dd/yy = 12/25/23\nMM-dd-yyyy = 12-25-2025")]
+            public string Log_Locally_DateFormat { get; set; }
+
+            [Comment("Required [Log_Locally_Enable = true]\nHow Do You Like Time Format\nExamples:\nHH:mm = 14:30\nhh:mm a = 02:30 PM\nHH:mm:ss = 14:30:45")]
+            public string Log_Locally_TimeFormat { get; set; }
 
             [Comment("Required [Log_Locally_Enable = true]\nAuto Delete File Logs That Pass Than X Old Days\n0 = Disable This Feature")]
             public int Log_Locally_AutoDeleteLogsMoreThanXdaysOld { get; set; }
@@ -357,14 +366,14 @@ namespace CnD_Sound.Config
             [Comment("Required [Discord_Disconnect_Style 2/3/4/5]\nHow Would You Side Color Message To Be Use This Site (https://htmlcolorcodes.com/color-picker) For Color Pick")]
             public string Discord_Disconnect_SideColor { get; set; }
 
+            [Comment("Required [Discord_Disconnect_WebHook]\nHow Do You Like Disconnect Message Format\n{DATE} = Discord_DateFormat\n{TIME} = Discord_TimeFormat\n{PLAYERNAME} = Player Name\n{STEAMID} = STEAM_0:1:122910632\n{STEAMID3} = U:1:245821265\n{STEAMID32} = 245821265\n{STEAMID64} = 76561198206086993\n{IP} = 123.45.67.89\n{CONTINENT} = Asia\n{LONGCOUNTRY} = United Arab Emirates\n{SHORTCOUNTRY} = AE\n{CITY} = Abu Dhabi\n{DISCONNECT_REASON} = Disconnect Reason\"\n\"\" = Disable")]
+            public string Discord_Disconnect_Format { get; set; }
+
             [Comment("Required [Discord_Connect_WebHook Or Discord_Disconnect_WebHook]\nHow Do You Like Date Format\nExamples:\ndd MM yyyy = 25 12 2023\nMM/dd/yy = 12/25/23\nMM-dd-yyyy = 12-25-2025")]
             public string Discord_DateFormat { get; set; }
 
             [Comment("Required [Discord_Connect_WebHook Or Discord_Disconnect_WebHook]\nHow Do You Like Time Format\nExamples:\nHH:mm = 14:30\nhh:mm a = 02:30 PM\nHH:mm:ss = 14:30:45")]
             public string Discord_TimeFormat { get; set; }
-
-            [Comment("Required [Discord_Disconnect_WebHook]\nHow Do You Like Disconnect Message Format\n{DATE} = Discord_DateFormat\n{TIME} = Discord_TimeFormat\n{PLAYERNAME} = Player Name\n{STEAMID} = STEAM_0:1:122910632\n{STEAMID3} = U:1:245821265\n{STEAMID32} = 245821265\n{STEAMID64} = 76561198206086993\n{IP} = 123.45.67.89\n{CONTINENT} = Asia\n{LONGCOUNTRY} = United Arab Emirates\n{SHORTCOUNTRY} = AE\n{CITY} = Abu Dhabi\n{DISCONNECT_REASON} = Disconnect Reason\"\n\"\" = Disable")]
-            public string Discord_Disconnect_Format { get; set; }
 
             [Comment("Required [Discord_Disconnect_Style Or Discord_Connect_SideColor 3/4/5]\nFooter Image")]
             public string Discord_FooterImage { get; set; }
@@ -413,24 +422,26 @@ namespace CnD_Sound.Config
                 Link = "https://github.com/oqyh/cs2-Connect-Disconnect-Sound-GoldKingZ";
 
                 EarlyConnection = true;
-                DisableLoopConnections = true;
+                IgnoreTheseDisconnectReasons = "1,54,55";
                 DisableServerHibernate = true;
                 PickRandomSounds = true;
                 RemoveDefaultDisconnect = 2;
+                Default_Sounds = true;
                 Toggle_Sounds_CommandsInGame  = "!sound,!sounds";
                 Toggle_Sounds_Flags  = "SteamID: 76561198206086993,76561198974936845 | Flag: @css/vips,@css/admins | Group: #css/vips,#css/admins";
-                Toggle_Messages_CommandsInGame  = "!message,!message";
-                Toggle_Messages_Flags  = "SteamID: 76561198206086993,76561198974936845 | Flag: @css/vips,@css/admins | Group: #css/vips,#css/admins";
-                Default_Sounds = true;
+                Toggle_Sounds_Hide = true;
                 Default_Messages = true;
+                Toggle_Messages_CommandsInGame  = "!message,!messages";
+                Toggle_Messages_Flags  = "SteamID: 76561198206086993,76561198974936845 | Flag: @css/vips,@css/admins | Group: #css/vips,#css/admins";
+                Toggle_Messages_Hide = true;
                 DateFormat = "MM-dd-yyyy";
                 TimeFormat = "HH:mm:ss";
 
                 Log_Locally_Enable = true;
-                Log_Locally_DateFormat = "MM-dd-yyyy";
-                Log_Locally_TimeFormat = "HH:mm:ss";
                 Log_Locally_Connect_Format = "[{DATE} - {TIME}] [{STEAMID64} - {PLAYERNAME}] Connected From [{CONTINENT} - {LONGCOUNTRY} - {CITY}] [{IP}]";
                 Log_Locally_Disconnect_Format = "[{DATE} - {TIME}] [{STEAMID64} - {PLAYERNAME}] Disconnected From [{CONTINENT} - {LONGCOUNTRY} - {CITY}] [{IP} - {DISCONNECT_REASON}]";
+                Log_Locally_DateFormat = "MM-dd-yyyy";
+                Log_Locally_TimeFormat = "HH:mm:ss";
                 Log_Locally_AutoDeleteLogsMoreThanXdaysOld = 7;
                 Cookies_Enable = true;
                 Cookies_AutoRemovePlayerOlderThanXDays = 7;

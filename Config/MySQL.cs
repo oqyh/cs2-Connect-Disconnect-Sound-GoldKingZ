@@ -117,14 +117,16 @@ public class MySqlDataManager
 
     public static async Task DeleteOldPlayersAsync()
     {
+        if(Configs.GetConfigData().MySql_AutoRemovePlayerOlderThanXDays < 1) return;
+        
         try
         {
             int days = Configs.GetConfigData().MySql_AutoRemovePlayerOlderThanXDays;
             const string cleanupQuery = "DELETE FROM CnD_PersonData WHERE DateAndTime < NOW() - INTERVAL @Days DAY";
-            
+
             await using var connection = new MySqlConnection(ConnectionString);
             await connection.OpenAsync();
-            
+
             await using var cleanupCommand = new MySqlCommand(cleanupQuery, connection);
             cleanupCommand.Parameters.Add("@Days", MySqlDbType.Int32).Value = days;
             await cleanupCommand.ExecuteNonQueryAsync();

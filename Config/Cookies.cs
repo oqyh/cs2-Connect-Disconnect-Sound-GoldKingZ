@@ -88,6 +88,8 @@ public class Cookies
 
     public static void FetchAndRemoveOldJsonEntries()
     {
+        if(Configs.GetConfigData().Cookies_AutoRemovePlayerOlderThanXDays < 1) return;
+
         string cookiesDirectory = Path.Combine(MainPlugin.Instance.ModuleDirectory, "cookies");
         string cookiesFilePath = Path.Combine(cookiesDirectory, "cookies.json");
         try

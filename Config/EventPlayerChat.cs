@@ -30,61 +30,119 @@ using CounterStrikeSharp.API.Core.Translations;
 
 namespace CnD_Sound;
 
-public class PlayerChat
+public class SayText2
 {
-    public HookResult OnPlayerChat(CCSPlayerController? player, CommandInfo info, bool TeamChat)
-	{
-        if (!player.IsValid() || !MainPlugin.Instance.g_Main.Player_Data.ContainsKey(player))return HookResult.Continue;
+    public HookResult OnSayText2(CounterStrikeSharp.API.Modules.UserMessages.UserMessage um, CCSPlayerController? player, string message)
+    {
+        if (!player.IsValid() || !MainPlugin.Instance.g_Main.Player_Data.ContainsKey(player)) return HookResult.Continue;
 
-        if((DateTime.Now - MainPlugin.Instance.g_Main.Player_Data[player].CS2Fixes).TotalSeconds < 0.1)return HookResult.Continue;
-        MainPlugin.Instance.g_Main.Player_Data[player].CS2Fixes = DateTime.Now;
-
-        var playerid = player.SteamID;
-        var eventmessage = info.ArgString;
-        eventmessage = eventmessage.TrimStart('"');
-        eventmessage = eventmessage.TrimEnd('"');
-        
-        if (string.IsNullOrWhiteSpace(eventmessage)) return HookResult.Continue;
-        string trimmedMessageStart = eventmessage.TrimStart();
-        string message = trimmedMessageStart.TrimEnd();
-
-        string[] Toggle_Messages_CommandsInGames = Configs.GetConfigData().Toggle_Messages_CommandsInGame.Split(',');
-        if (Toggle_Messages_CommandsInGames.Any(command => message.Equals(command.Trim(), StringComparison.OrdinalIgnoreCase)))
+        if (Configs.GetConfigData().Toggle_Messages_CommandsInGame.GetCommands(true).Any(command => message.Equals(command.Trim(), StringComparison.OrdinalIgnoreCase)))
         {
-            if(!string.IsNullOrEmpty(Configs.GetConfigData().Toggle_Messages_Flags) && !Helper.IsPlayerInGroupPermission(player, Configs.GetConfigData().Toggle_Messages_Flags))
+            if (!string.IsNullOrEmpty(Configs.GetConfigData().Toggle_Messages_Flags) && !Helper.IsPlayerInGroupPermission(player, Configs.GetConfigData().Toggle_Messages_Flags))
             {
-                Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Not.Allowed"]);
-            }else
+                if (!message.StartsWith("!")) Helper.AdvancedPlayerPrintToChat(player, null!, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Not.Allowed"]);
+            }
+            else
             {
-                MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages = MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages.ToggleOnOff();
-                if(MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages == -1)
+                if (!message.StartsWith("!"))
                 {
-                    Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Enabled"]);
-                }else if(MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages == -2)
+                    MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages = MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages.ToggleOnOff();
+                    if (MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages == -1)
+                    {
+                        Helper.AdvancedPlayerPrintToChat(player, null!, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Enabled"]);
+                    }
+                    else if (MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Messages == -2)
+                    {
+                        Helper.AdvancedPlayerPrintToChat(player, null!, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Disabled"]);
+                    }
+                }
+                if (Configs.GetConfigData().Toggle_Messages_Hide)
                 {
-                    Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Disabled"]);
+                    um.Recipients.Clear();
                 }
             }
         }
 
-        string[] Toggle_Sounds_CommandsInGames = Configs.GetConfigData().Toggle_Sounds_CommandsInGame.Split(',');
-        if (Toggle_Sounds_CommandsInGames.Any(command => message.Equals(command.Trim(), StringComparison.OrdinalIgnoreCase)))
+        if ( Configs.GetConfigData().Toggle_Sounds_CommandsInGame.GetCommands(true).Any(command => message.Equals(command.Trim(), StringComparison.OrdinalIgnoreCase)))
         {
-            if(!string.IsNullOrEmpty(Configs.GetConfigData().Toggle_Sounds_Flags) && !Helper.IsPlayerInGroupPermission(player, Configs.GetConfigData().Toggle_Sounds_Flags))
+            if (!string.IsNullOrEmpty(Configs.GetConfigData().Toggle_Sounds_Flags) && !Helper.IsPlayerInGroupPermission(player, Configs.GetConfigData().Toggle_Sounds_Flags))
             {
-                Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Not.Allowed"]);
-            }else
+                if (!message.StartsWith("!")) Helper.AdvancedPlayerPrintToChat(player, null!, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Not.Allowed"]);
+            }
+            else
             {
-                MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds = MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds.ToggleOnOff();
-                if(MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds == -1)
+                if (!message.StartsWith("!"))
                 {
-                    Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Enabled"]);
-                }else if(MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds == -2)
+                    MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds = MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds.ToggleOnOff();
+                    if (MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds == -1)
+                    {
+                        Helper.AdvancedPlayerPrintToChat(player, null!, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Enabled"]);
+                    }
+                    else if (MainPlugin.Instance.g_Main.Player_Data[player].Toggle_Sounds == -2)
+                    {
+                        Helper.AdvancedPlayerPrintToChat(player, null!, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Disabled"]);
+                    }
+                }
+                if (Configs.GetConfigData().Toggle_Sounds_Hide)
                 {
-                    Helper.AdvancedPlayerPrintToChat(player, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Disabled"]);
+                    um.Recipients.Clear();
                 }
             }
         }
+
         return HookResult.Continue;
+    }
+    
+
+    public void CommandsAction_Sounds(CCSPlayerController? player, CommandInfo info)
+    {
+        if (!player.IsValid()) return;
+
+        Helper.CheckPlayerInGlobals(player);
+
+        if (!MainPlugin.Instance.g_Main.Player_Data.TryGetValue(player, out var playerData)) return;
+
+        if (!string.IsNullOrEmpty(Configs.GetConfigData().Toggle_Sounds_Flags) && !Helper.IsPlayerInGroupPermission(player, Configs.GetConfigData().Toggle_Sounds_Flags))
+        {
+            Helper.AdvancedPlayerPrintToChat(player, info, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Not.Allowed"]);
+        }
+        else
+        {
+            playerData.Toggle_Sounds = playerData.Toggle_Sounds.ToggleOnOff();
+            if (playerData.Toggle_Sounds == -1)
+            {
+                Helper.AdvancedPlayerPrintToChat(player, info, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Enabled"]);
+            }
+            else if (playerData.Toggle_Sounds == -2)
+            {
+                Helper.AdvancedPlayerPrintToChat(player, info, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Sounds.Disabled"]);
+            }
+        }
+    }
+
+    public void CommandsAction_Messages(CCSPlayerController? player, CommandInfo info)
+    {
+        if (!player.IsValid()) return;
+
+        Helper.CheckPlayerInGlobals(player);
+
+        if (!MainPlugin.Instance.g_Main.Player_Data.TryGetValue(player, out var playerData)) return;
+
+        if (!string.IsNullOrEmpty(Configs.GetConfigData().Toggle_Messages_Flags) && !Helper.IsPlayerInGroupPermission(player, Configs.GetConfigData().Toggle_Messages_Flags))
+        {
+            Helper.AdvancedPlayerPrintToChat(player, info, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Not.Allowed"]);
+        }
+        else
+        {
+            playerData.Toggle_Messages = playerData.Toggle_Messages.ToggleOnOff();
+            if (playerData.Toggle_Messages == -1)
+            {
+                Helper.AdvancedPlayerPrintToChat(player, info, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Enabled"]);
+            }
+            else if (playerData.Toggle_Messages == -2)
+            {
+                Helper.AdvancedPlayerPrintToChat(player, info, MainPlugin.Instance.Localizer["PrintChatToPlayer.Toggle.Messages.Disabled"]);
+            }
+        }
     }
 }

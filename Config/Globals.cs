@@ -37,7 +37,6 @@ public class Globals
         }
     }
     public Dictionary<CCSPlayerController, PlayerDataClass> Player_Data = new Dictionary<CCSPlayerController, PlayerDataClass>();
-    public Dictionary<CCSPlayerController, bool> OnLoop = new Dictionary<CCSPlayerController, bool>();
     public JObject? JsonData_Disconnect { get; set; }
     public JObject? JsonData_Settings { get; set; }
 
