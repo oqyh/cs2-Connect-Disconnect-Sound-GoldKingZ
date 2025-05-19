@@ -2,7 +2,7 @@
 
 <a href="https://discord.com/invite/U7AuQhu"><img src="https://discord.com/api/guilds/651838917687115806/widget.png?style=banner2"></a>
 
-# [CS2] Connect-Disconnect-Sound-GoldKingZ (1.1.3)
+# [CS2] Connect-Disconnect-Sound-GoldKingZ (1.1.4)
 
 Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
@@ -59,21 +59,23 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 <details open>
 <summary><b>Main Config</b> (Click to expand 🔽)</summary>
 
-| Property | Description | Values | Required |  
-|----------|-------------|--------|----------|
-| `EarlyConnection` | Enable Early Connection | `true`-Yes<br>`false`-No | - |
-| `DisableLoopConnections` | Disable Looping Connections | `true`-Yes<br>`false`-No | - |
-| `DisableServerHibernate` | Disable Server Hibernation | `true`-Yes (Recommended)<br>`false`-No | - |
-| `PickRandomSounds` | Random Sound Selection | `true`-Random<br>`false`-Sequential | - |
-| `RemoveDefaultDisconnect` | Remove Disconnect Messages | `0`-No<br>`1`-Remove messages<br>`2`-Remove messages+icon | - |
-| `Toggle_Sounds_CommandsInGame` | Sound Toggle Commands | Example: `!sound,!sounds`<br>`""`-Disable | - |
-| `Toggle_Sounds_Flags` | Sound Toggle Flags | Example: `@css/vvip,#css/vvip`<br>`""`-Everyone | `Toggle_Sounds_CommandsInGame` ≠ `""` |
-| `Toggle_Messages_CommandsInGame` | Message Toggle Commands | Example: `!message`<br>`""`-Disable | - |
-| `Toggle_Messages_Flags` | Message Toggle Flags | Example: `@css/vvip,#css/vvip`<br>`""`-Everyone | `Toggle_Messages_CommandsInGame` ≠ `""` |
-| `Default_Sounds` | Default Sound State | `true`-On<br>`false`-Off | - |
-| `Default_Messages` | Default Message State | `true`-On<br>`false`-Off | - |
-| `DateFormat` | Date Format | Examples: `MM-dd-yyyy` | - |
-| `TimeFormat` | Time Format | Examples: `HH:mm:ss` | - |
+| Property                         | Description                                                         | Values                                                                                                    | Required                                     |
+| -------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `EarlyConnection`                | Enable Early Connection of the Players                              | `true` = Yes<br>`false` = No (Wait until fully connected)                                                 | -                                            |
+| `IgnoreTheseDisconnectReasons`   | Ignore specified disconnect reasons (see `disconnect_reasons.json`) | Comma-separated codes (e.g. `1,54,55`)<br>`""` = Disable                                                  | -                                            |
+| `DisableServerHibernate`         | Disable server hibernation when empty                               | `true` = Yes (Recommended)<br>`false` = No                                                                | -                                            |
+| `PickRandomSounds`               | Pick random sounds instead of sequential                            | `true` = Random<br>`false` = Sequential                                                                   | -                                            |
+| `RemoveDefaultDisconnect`        | Remove default disconnect message/icon                              | `0` = No<br>`1` = Remove messages<br>`2` = Remove messages + icon                                         | -                                            |
+| `Default_Sounds`                 | Default sound state for new players                                 | `true` = On<br>`false` = Off                                                                              | -                                            |
+| `Toggle_Sounds_CommandsInGame`   | Commands to toggle sounds on/off                                    | e.g. `!sound,!sounds`<br>`""` = Disable                                                                   | -                                            |
+| `Toggle_Sounds_Flags`            | Flags/Groups/SteamIDs allowed to use sound toggle commands          | e.g. `SteamID: 7656...,7656... \| Flag: @css/vips,@css/admins \| Group: #css/vips,...`<br>`""` = Everyone | When `Toggle_Sounds_CommandsInGame` ≠ `""`   |
+| `Toggle_Sounds_Hide`             | Hide confirmation chat after toggling sounds                        | `true` = Yes<br>`false` = No                                                                              | When `Toggle_Sounds_CommandsInGame` ≠ `""`   |
+| `Default_Messages`               | Default message state for new players                               | `true` = On<br>`false` = Off                                                                              | -                                            |
+| `Toggle_Messages_CommandsInGame` | Commands to toggle connect/disconnect messages on/off               | e.g. `!message,!messages`<br>`""` = Disable                                                               | -                                            |
+| `Toggle_Messages_Flags`          | Flags/Groups/SteamIDs allowed to use message toggle commands        | e.g. `SteamID: 7656...,7656... \| Flag: @css/vips,@css/admins \| Group: #css/vips,...`<br>`""` = Everyone | When `Toggle_Messages_CommandsInGame` ≠ `""` |
+| `Toggle_Messages_Hide`           | Hide confirmation chat after toggling messages                      | `true` = Yes<br>`false` = No                                                                              | When `Toggle_Messages_CommandsInGame` ≠ `""` |
+| `DateFormat`                     | Format for dates in messages                                        | e.g. `MM-dd-yyyy`, `dd MM yyyy`, `MM/dd/yy`                                                               | -                                            |
+| `TimeFormat`                     | Format for times in messages                                        | e.g. `HH:mm`, `hh:mm a`, `HH:mm:ss`                                                                       | -                                            |
 
 </details>
 
@@ -83,10 +85,10 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 | Property | Description | Values | Required |  
 |----------|-------------|--------|----------|
 | `Log_Locally_Enable` | Enable Local Logging | `true`-Yes<br>`false`-No | - |
-| `Log_Locally_DateFormat` | Log Date Format | Examples: `MM-dd-yyyy` | `Log_Locally_Enable=true` |
-| `Log_Locally_TimeFormat` | Log Time Format | Examples: `HH:mm:ss` | `Log_Locally_Enable=true` |
 | `Log_Locally_Connect_Format` | Connect Message Format | Template with placeholders<br>`""`-Disable | `Log_Locally_Enable=true` |
 | `Log_Locally_Disconnect_Format` | Disconnect Message Format | Template with placeholders<br>`""`-Disable | `Log_Locally_Enable=true` |
+| `Log_Locally_DateFormat` | Log Date Format | Examples: `MM-dd-yyyy` | `Log_Locally_Enable=true` |
+| `Log_Locally_TimeFormat` | Log Time Format | Examples: `HH:mm:ss` | `Log_Locally_Enable=true` |
 | `Log_Locally_AutoDeleteLogsMoreThanXdaysOld` | Auto-Delete Logs | Days to keep<br>`0`-Disable | `Log_Locally_Enable=true` |
 | `Cookies_Enable` | Enable Player Cookies | `true`-Yes<br>`false`-No | - |
 | `Cookies_AutoRemovePlayerOlderThanXDays` | Auto-Delete Inactive Cookies | Days to keep<br>`0`-Disable | `Cookies_Enable=true` |
@@ -173,9 +175,9 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 | Key | Description | Values/Examples |
 |-----|-------------|-----------------|
 | `"ANY"` | Applies to all non-specified players | `"ANY": { ... }` |
-| `@css/admins` | Targets players with admin flags | `@css/vip` |
-| `#css/admins` | Targets player groups | `#css/regulars` |
-| `!STEAM_0:...` | Targets specific players by SteamID | `!76561198206086993` |
+| `Flags : @css/admins` | Targets players with admin flags | `Flags : @css/admins,@css/admin` |
+| `Group : #css/admins` | Targets player groups | `Group : #css/admins,#css/admin` |
+| `SteamID : STEAM_0:1:122910632` | Targets specific players by SteamID | `SteamID : STEAM_0:1:122910632,U:1:245821265,245821265,76561198206086993` |
 | `CONNECT_MESSAGE_CHAT` | Connect message template | `"{Green}{PLAYERNAME} joined"` |
 | `CONNECT_SOUND_VOLUME` | Connect sound volume (1-100%) | `"75%"` |
 | `CONNECT_SOUND` | Connect sound file paths | `["ui/item_acquired.vsnd"]` |
@@ -210,6 +212,14 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
 <details>
 <summary><b>📋 View Version History</b> (Click to expand 🔽)</summary>
+
+### [1.1.4]
+- Fix Toggles
+- Removed DisableLoopConnections
+- Added Console css_ ! Commands
+- Added IgnoreTheseDisconnectReasons
+- Added Toggle_Messages_Hide
+- Added Toggle_Sounds_Hide
 
 ### [1.1.3]
 - Removed CompatibilityWithCS2Fixes On By Default
