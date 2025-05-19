@@ -214,9 +214,13 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 <summary><b>📋 View Version History</b> (Click to expand 🔽)</summary>
 
 ### [1.1.4]
+- Fix Some Bugs
 - Fix Toggles
+- Fix MySql_AutoRemovePlayerOlderThanXDays = 0
+- Cookies_AutoRemovePlayerOlderThanXDays = 0
 - Removed DisableLoopConnections
-- Added Console css_ ! Commands
+- Added Console css_ ! Commands To Toggle_Messages_CommandsInGame
+- Added Console css_ ! Commands To Toggle_Sounds_CommandsInGame
 - Added IgnoreTheseDisconnectReasons
 - Added Toggle_Messages_Hide
 - Added Toggle_Sounds_Hide
