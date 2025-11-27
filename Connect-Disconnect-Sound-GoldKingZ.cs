@@ -10,71 +10,50 @@ using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Utils;
 using CnD_Sound.Config;
+using System.Text;
 
 namespace CnD_Sound;
 
 public class MainPlugin : BasePlugin
 {
     public override string ModuleName => "Connect Disconnect Sound (Continent , Country , City , Message , Sounds , Logs , Discord)";
-    public override string ModuleVersion => "1.1.4";
+    public override string ModuleVersion => "1.1.5";
     public override string ModuleAuthor => "Gold KingZ";
     public override string ModuleDescription => "https://github.com/oqyh";
     public static MainPlugin Instance { get; set; } = new();
     public Globals g_Main = new();
-    private readonly SayText2 OnSayText2 = new();
+    public readonly Game_UserMessages Game_UserMessages = new();
     
     public override void Load(bool hotReload)
     {
         Instance = this;
         Configs.Load(ModuleDirectory);
 
-        _ = Task.Run(async () => 
-        {
-            try
-            {
-                await Helper.DownloadMissingFiles();
-                
-                var geoUpdated = await Helper.CheckAndUpdateGeoAsync();
-                if (geoUpdated)
-                {
-                    Helper.DebugMessage("GeoLite2-City.mmdb Updated Successfully!");
-                }
-
-                await Server.NextFrameAsync(() => CustomHooks.StartHook());
-            }
-            catch (Exception ex)
-            {
-                Helper.DebugMessage($"DownloadMissingFiles/geoUpdated failed: {ex}");
-            }
-        });
-        
-        RegisterEventHandler<EventPlayerConnectFull>(OnEventPlayerConnectFull);
-        RegisterEventHandler<EventPlayerDeath>(OnEventPlayerDeath, HookMode.Pre);
-        RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect, HookMode.Pre);
-
-        RegisterListener<Listeners.OnServerPrecacheResources>(OnServerPrecacheResources);
-        RegisterListener<Listeners.OnClientAuthorized>(OnClientAuthorized);
-        RegisterListener<Listeners.OnMapStart>(OnMapStart);
-        RegisterListener<Listeners.OnMapEnd>(OnMapEnd);
-        
-        HookUserMessage(118, OnUserMessage_OnSayText2, HookMode.Pre);
-
-        Helper.RegisterCssCommands(Configs.GetConfigData().Toggle_Messages_CommandsInGame.GetCommands(), "Commands To Enable/Disable Messages", OnSayText2.CommandsAction_Messages);
-        Helper.RegisterCssCommands(Configs.GetConfigData().Toggle_Sounds_CommandsInGame.GetCommands(), "Commands To Enable/Disable Sounds", OnSayText2.CommandsAction_Sounds);
+        _ = Task.Run(Helper.DownloadMissingFilesAsync);
+        Helper.RemoveRegisterCommandsAndHooks();
+        Helper.LoadJson_connect_disconnect_config();
+        Helper.LoadJson_disconnect_reasons();
+        Helper.RegisterCommandsAndHooks();
 
         if (hotReload)
         {
-            Helper.LoadJson();
             g_Main.ServerPublicIpAdress = ConVar.Find("ip")?.StringValue!;
             g_Main.ServerPort = ConVar.Find("hostport")?.GetPrimitiveValue<int>().ToString()!;
 
-            if (Configs.GetConfigData().Log_Locally_AutoDeleteLogsMoreThanXdaysOld > 0)
+            _ = Task.Run(Helper.DownloadMissingFilesAsync);
+            Helper.RemoveRegisterCommandsAndHooks();
+            Helper.LoadJson_connect_disconnect_config();
+            Helper.LoadJson_disconnect_reasons();
+            Helper.RegisterCommandsAndHooks();
+            Helper.ReloadPlayersGlobals();
+
+            if (Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld > 0)
             {
                 string Fpath = Path.Combine(ModuleDirectory, "logs");
-                Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.GetConfigData().Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
+                Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
             }
 
-            if (string.IsNullOrEmpty(g_Main.ServerPublicIpAdress) || Configs.GetConfigData().MySql_Enable)
+            if (string.IsNullOrEmpty(g_Main.ServerPublicIpAdress) || Configs.Instance.MySql_Enable > 0)
             {
                 _ = Task.Run(async () =>
                 {
@@ -87,17 +66,11 @@ public class MainPlugin : BasePlugin
                         }
                     }
 
-                    if (Configs.GetConfigData().MySql_Enable)
+                    if (Configs.Instance.MySql_Enable > 0)
                     {
                         await MySqlDataManager.CreateTableIfNotExistsAsync();
                     }
                 });
-            }
-
-            foreach (var players in Helper.GetPlayersController(false, false, false, true, true, true))
-            {
-                if (!players.IsValid()) continue;
-                Helper.CheckPlayerInGlobals(players);
             }
         }
     }
@@ -117,23 +90,27 @@ public class MainPlugin : BasePlugin
         }
         catch (Exception ex)
         {
-            Helper.DebugMessage(ex.Message);
+            Helper.DebugMessage($"OnServerPrecacheResources Error: {ex.Message}");
         }
     }
-    
+
     public void OnMapStart(string Map)
     {
-        Helper.LoadJson();
+        Helper.RemoveRegisterCommandsAndHooks();
+        Helper.LoadJson_connect_disconnect_config();
+        Helper.LoadJson_disconnect_reasons();
+        Helper.RegisterCommandsAndHooks();
+
         g_Main.ServerPublicIpAdress = ConVar.Find("ip")?.StringValue!;
         g_Main.ServerPort = ConVar.Find("hostport")?.GetPrimitiveValue<int>().ToString()!;
 
-        if (Configs.GetConfigData().Log_Locally_AutoDeleteLogsMoreThanXdaysOld > 0)
+        if (Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld > 0)
         {
             string Fpath = Path.Combine(ModuleDirectory, "logs");
-            Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.GetConfigData().Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
+            Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
         }
 
-        if (string.IsNullOrEmpty(g_Main.ServerPublicIpAdress) || Configs.GetConfigData().MySql_Enable)
+        if (string.IsNullOrEmpty(g_Main.ServerPublicIpAdress) || Configs.Instance.MySql_Enable > 0)
         {
             _ = Task.Run(async () =>
             {
@@ -146,7 +123,7 @@ public class MainPlugin : BasePlugin
                     }
                 }
 
-                if (Configs.GetConfigData().MySql_Enable)
+                if (Configs.Instance.MySql_Enable > 0)
                 {
                     await MySqlDataManager.CreateTableIfNotExistsAsync();
                 }
@@ -154,40 +131,45 @@ public class MainPlugin : BasePlugin
         }
     }
 
-    private void OnClientAuthorized(int playerSlot, SteamID steamId)
+    public void OnClientAuthorized(int playerSlot, SteamID steamId)
     {
-        if (!Configs.GetConfigData().EarlyConnection) return;
+        if (!Configs.Instance.EarlyConnection) return;
 
         var player = Utilities.GetPlayerFromSlot(playerSlot);
-        if (!player.IsValid()) return;
-
+        if (!player.IsValid() || g_Main.Player_Disconnect_Reasons.ContainsKey(player)) return;
+        
         _ = HandlePlayerConnectionsAsync(player, false, "");
     }
-
     public HookResult OnEventPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
     {
         if (@event == null)return HookResult.Continue;
 
         var player = @event.Userid;
         if (!player.IsValid())return HookResult.Continue;
+
+        if (g_Main.Player_Disconnect_Reasons.ContainsKey(player))
+        {
+            g_Main.Player_Disconnect_Reasons.Remove(player);
+        }
+
+        if (Configs.Instance.EarlyConnection) return HookResult.Continue;
         
-        if (Configs.GetConfigData().EarlyConnection) return HookResult.Continue;
 
         _ = HandlePlayerConnectionsAsync(player, false, "");
 
         return HookResult.Continue;
     }
 
-    private HookResult OnEventPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
+    public HookResult OnEventPlayerDeath(EventPlayerDeath @event, GameEventInfo info)
     {
         if(@event == null)return HookResult.Continue;
 
         var victim = @event.Userid;
         if(!victim.IsValid())return HookResult.Continue;
 
-        if (Configs.GetConfigData().RemoveDefaultDisconnect == 2)
+        if (Configs.Instance.RemoveDefaultDisconnect == 2)
         {
-            if(g_Main.Player_Data.ContainsKey(victim) && g_Main.Player_Data[victim].Remove_Icon)
+            if (victim.Connected == PlayerConnectedState.PlayerDisconnecting)
             {
                 info.DontBroadcast = true;
             }
@@ -196,172 +178,11 @@ public class MainPlugin : BasePlugin
         return HookResult.Continue;
     }
 
-    private async Task HandlePlayerConnectionsAsync(CCSPlayerController Getplayer, bool Disconnect, string reason)
-    {
-        try
-        {
-            if(Configs.GetConfigData().DisableServerHibernate)
-            {
-                Server.ExecuteCommand("sv_hibernate_when_empty false");
-            }
-
-            var player = Getplayer;
-            if (!player.IsValid()) return;
-
-            var playername = player.PlayerName;
-            var (playersteamId2, playersteamId3, playersteamId32, playersteamId64) = player.SteamID.GetPlayerSteamID();
-            var playerip = player.IpAddress?.Split(':')[0] ?? Localizer["InValidIpAddress"];
-
-            if(!Disconnect)
-            {
-                await Helper.LoadPlayerData(player);
-            }
-
-            var geoInfo = await Helper.GetGeoInfoAsync(playerip);
-            
-            await Server.NextFrameAsync(async () =>
-            {
-                if (!player.IsValid() || !g_Main.Player_Data.ContainsKey(player))return;
-
-                var (ConnectionSettingsMessage, ConnectionSettingsSound, ConnectionSettingsSoundVolume) = Helper.GetPlayerConnectionSettings(player, Disconnect?"DISCONNECT":"CONNECT");
-                string formatted = "";                
-                
-                if (!string.IsNullOrEmpty(ConnectionSettingsMessage))
-                {
-                    formatted = ConnectionSettingsMessage.ReplaceMessages(
-                        DateTime.Now.ToString(Configs.GetConfigData().DateFormat),
-                        DateTime.Now.ToString(Configs.GetConfigData().TimeFormat),
-                        playername,
-                        playersteamId2,
-                        playersteamId3,
-                        playersteamId32,
-                        playersteamId64,
-                        playerip,
-                        geoInfo.Continent,
-                        geoInfo.Country,
-                        geoInfo.CountryCode,
-                        geoInfo.City,
-                        Disconnect?reason:""
-                    );
-                }
-
-                foreach (var allplayers in Helper.GetPlayersController())
-                {
-                    if (!allplayers.IsValid() || !g_Main.Player_Data.ContainsKey(allplayers))continue;
-
-                    if (!string.IsNullOrEmpty(formatted) && (g_Main.Player_Data[allplayers].Toggle_Messages == 1 || g_Main.Player_Data[allplayers].Toggle_Messages == -1))
-                    {
-                        formatted = formatted.ReplaceColorTags();
-                        Helper.AdvancedPlayerPrintToChat(allplayers, null!, formatted);
-                    }
-                    
-                    if (ConnectionSettingsSound.Count > 0 && (g_Main.Player_Data[allplayers].Toggle_Sounds == 1 || g_Main.Player_Data[allplayers].Toggle_Sounds == -1))
-                    {
-                        string nextSound = ConnectionSettingsSound.GetNextSound(pickRandom: Configs.GetConfigData().PickRandomSounds);
-
-                        if(nextSound.StartsWith("sounds/"))
-                        {
-                            allplayers.ExecuteClientCommand($"play {nextSound}");
-                        }else
-                        {
-                            float SoundVolume = ConnectionSettingsSoundVolume!.ToPercentageFloat();
-                            RecipientFilter filter = [allplayers];
-                            allplayers.EmitSound(nextSound, filter, (float)SoundVolume);
-                        }
-                    }
-                }
-
-                if (Configs.GetConfigData().Log_Locally_Enable)
-                {
-                    var logPath = Path.Combine(ModuleDirectory, "logs");
-                    Directory.CreateDirectory(logPath);
-                    
-                    var fileName = DateTime.Now.ToString(Configs.GetConfigData().Log_Locally_DateFormat) + ".txt";
-                    var fullPath = Path.Combine(logPath, fileName);
-                    string Format = Disconnect?Configs.GetConfigData().Log_Locally_Disconnect_Format:Configs.GetConfigData().Log_Locally_Connect_Format;
-                    var logMessage = Format?.ReplaceMessages(
-                        DateTime.Now.ToString(Configs.GetConfigData().Log_Locally_DateFormat),
-                        DateTime.Now.ToString(Configs.GetConfigData().Log_Locally_TimeFormat),
-                        playername,
-                        playersteamId2,
-                        playersteamId3,
-                        playersteamId32,
-                        playersteamId64,
-                        playerip,
-                        geoInfo.Continent,
-                        geoInfo.Country,
-                        geoInfo.CountryCode,
-                        geoInfo.City,
-                        Disconnect?reason:""
-                    );
-
-                    if (!string.IsNullOrEmpty(logMessage))
-                    {
-                        await File.AppendAllTextAsync(fullPath, logMessage + Environment.NewLine);
-                    }
-                }
-            });
-
-            if (Disconnect?!string.IsNullOrEmpty(Configs.GetConfigData().Discord_Disconnect_WebHook):!string.IsNullOrEmpty(Configs.GetConfigData().Discord_Connect_WebHook))
-            {
-                string Format = Disconnect?Configs.GetConfigData().Discord_Disconnect_Format:Configs.GetConfigData().Discord_Connect_Format;
-                var discordMessage = Format?.ReplaceMessages(
-                    DateTime.Now.ToString(Configs.GetConfigData().Discord_DateFormat),
-                    DateTime.Now.ToString(Configs.GetConfigData().Discord_TimeFormat),
-                    playername,
-                    playersteamId2,
-                    playersteamId3,
-                    playersteamId32,
-                    playersteamId64,
-                    playerip,
-                    geoInfo.Continent,
-                    geoInfo.Country,
-                    geoInfo.CountryCode,
-                    geoInfo.City,
-                    Disconnect?reason:""
-                );
-
-                if (!string.IsNullOrEmpty(discordMessage))
-                {
-                    await Helper.SendToDiscordAsync(
-                        Disconnect?Configs.GetConfigData().Discord_Disconnect_Style:Configs.GetConfigData().Discord_Connect_Style,
-                        Disconnect?Configs.GetConfigData().Discord_Disconnect_WebHook:Configs.GetConfigData().Discord_Connect_WebHook,
-                        discordMessage,
-                        playersteamId64,
-                        playername,
-                        $"{g_Main.ServerPublicIpAdress}:{g_Main.ServerPort}",
-                        Disconnect
-                    );
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Helper.DebugMessage($"HandlePlayerConnectionsAsync error: {ex.Message}");
-        }
-    }
-
-    private HookResult OnUserMessage_OnSayText2(CounterStrikeSharp.API.Modules.UserMessages.UserMessage um)
-    {
-        var entityindex = um.ReadInt("entityindex");
-        var player = Utilities.GetPlayerFromIndex(entityindex);
-        if (!player.IsValid()) return HookResult.Continue;
-        Helper.CheckPlayerInGlobals(player);
-
-        var message = um.ReadString("param2");
-        if (string.IsNullOrWhiteSpace(message)) return HookResult.Continue;
-
-        message = message.Trim();
-
-        OnSayText2.OnSayText2(um, player, message);
-        return HookResult.Continue;
-    }
-
-    private HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo info)
+    public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo info)
     {
         if (@event == null)return HookResult.Continue;
 
-        if (Configs.GetConfigData().RemoveDefaultDisconnect == 1 || Configs.GetConfigData().RemoveDefaultDisconnect == 2)
+        if (Configs.Instance.RemoveDefaultDisconnect > 0)
         {
             info.DontBroadcast = true;
         }
@@ -371,29 +192,239 @@ public class MainPlugin : BasePlugin
         var reason = Helper.GetDisconnectReason(reasonInt);
 
         if (!player.IsValid())return HookResult.Continue;
-        
-        if (!string.IsNullOrEmpty(Configs.GetConfigData().IgnoreTheseDisconnectReasons))
-        {
-            var ignoreReasons = Configs.GetConfigData().IgnoreTheseDisconnectReasons
-            .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => s.Trim())
-            .ToList();
 
-            if (ignoreReasons.Contains(reasonInt.ToString()))
+        var ignoreReasons = Configs.Instance.IgnoreTheseDisconnectReasons;
+
+        if (ignoreReasons != null && ignoreReasons.Count > 0)
+        {
+            if (ignoreReasons.Contains(reasonInt))
             {
+                if (!g_Main.Player_Disconnect_Reasons.TryGetValue(player, out var reasons))
+                {
+                    reasons = new HashSet<string>();
+                    g_Main.Player_Disconnect_Reasons[player] = reasons;
+                }
+
+                if (!reasons.Contains(reason))
+                {
+                    reasons.Add(reason);
+                }
+
                 return HookResult.Continue;
             }
         }
-
-        if(Configs.GetConfigData().RemoveDefaultDisconnect == 2)
-        {
-            if (g_Main.Player_Data.ContainsKey(player))
-            {
-                g_Main.Player_Data[player].Remove_Icon = true;
-            }
-        }
-
+        
         _ = HandlePlayerConnectionsAsync(player, true, reason);
+
+        return HookResult.Continue;
+    }
+
+    public async Task HandlePlayerConnectionsAsync(CCSPlayerController Getplayer, bool Disconnect, string reason, bool mutemessage = false)
+    {
+        try
+        {
+            var player = Getplayer;
+            if (!player.IsValid()) return;
+
+            var playername = player.PlayerName.RemoveColorNames();
+            var (playersteamId2, playersteamId3, playersteamId32, playersteamId64) = player.SteamID.GetPlayerSteamID();
+            var playerip = player.IpAddress?.Split(':')[0] ?? Localizer["InValidIpAddress"];
+
+            if(!Disconnect)
+            {
+                await Helper.LoadPlayerData(player);
+            }
+
+            var geoInfo = await Helper.GetGeoInfoAsync(playerip);
+
+            if (Configs.Instance.AutoSetPlayerLanguage)
+            {
+                Server.NextFrame(() =>
+                {
+                    if (player.IsValid())
+                    {
+                        Helper.SetPlayerLanguage(player, geoInfo.CountryCode);
+                    }
+                });
+            }
+
+            if(!mutemessage)
+            {
+                await Server.NextFrameAsync(async () =>
+                {
+                    if (!player.IsValid() || !g_Main.Player_Data.ContainsKey(player.Slot))return;
+                    
+                    var (ConnectionSettingsMessage, ConnectionSettingsSound, ConnectionSettingsSoundVolume) = Helper.GetPlayerConnectionSettings(player, Disconnect?"DISCONNECT":"CONNECT");
+                    string formatted = "";                
+                    
+                    if (!string.IsNullOrEmpty(ConnectionSettingsMessage))
+                    {
+                        formatted = ConnectionSettingsMessage.ReplaceMessages(
+                            DateTime.Now.ToString(Configs.Instance.DateFormat),
+                            DateTime.Now.ToString(Configs.Instance.TimeFormat),
+                            playername,
+                            playersteamId2,
+                            playersteamId3,
+                            playersteamId32,
+                            playersteamId64,
+                            playerip,
+                            geoInfo.Continent,
+                            geoInfo.Country,
+                            geoInfo.CountryCode,
+                            geoInfo.City,
+                            Disconnect?reason:""
+                        );
+                    }
+
+                    string nextSound = ConnectionSettingsSound.Count > 0? ConnectionSettingsSound.GetSoundPath(Configs.Instance.PickSoundsByOrder) : "";
+
+                    foreach (var allplayers in Helper.GetPlayersController())
+                    {
+                        if (!allplayers.IsValid() || !g_Main.Player_Data.ContainsKey(allplayers.Slot))continue;
+
+                        if (!string.IsNullOrEmpty(formatted) && (g_Main.Player_Data[allplayers.Slot].Toggle_Messages == 1 || g_Main.Player_Data[allplayers.Slot].Toggle_Messages == -1))
+                        {
+                            formatted = formatted.ReplaceColorTags();
+                            Helper.AdvancedPlayerPrintToChat(allplayers, null!, formatted);
+                        }
+                        
+                        if (!string.IsNullOrEmpty(nextSound) && (g_Main.Player_Data[allplayers.Slot].Toggle_Sounds == 1 || g_Main.Player_Data[allplayers.Slot].Toggle_Sounds == -1))
+                        {
+                            if(nextSound.StartsWith("sounds/"))
+                            {
+                                allplayers.ExecuteClientCommand($"play {nextSound}");
+                            }else
+                            {
+                                float SoundVolume = ConnectionSettingsSoundVolume.ToPercentageFloat();
+                                RecipientFilter filter = [allplayers];
+                                allplayers.EmitSound(nextSound, filter, (float)SoundVolume);
+                            }
+                        }
+                    }
+
+                    if (Configs.Instance.Log_Locally_Enable)
+                    {
+                        var logPath = Path.Combine(ModuleDirectory, "logs");
+                        Directory.CreateDirectory(logPath);
+                        
+                        var fileName = DateTime.Now.ToString(Configs.Instance.Log_Locally_DateFormat) + ".txt";
+                        var fullPath = Path.Combine(logPath, fileName);
+                        string Format = Disconnect?Configs.Instance.Log_Locally_Disconnect_Format:Configs.Instance.Log_Locally_Connect_Format;
+                        var logMessage = Format?.ReplaceMessages(
+                            DateTime.Now.ToString(Configs.Instance.Log_Locally_DateFormat),
+                            DateTime.Now.ToString(Configs.Instance.Log_Locally_TimeFormat),
+                            playername,
+                            playersteamId2,
+                            playersteamId3,
+                            playersteamId32,
+                            playersteamId64,
+                            playerip,
+                            geoInfo.Continent,
+                            geoInfo.Country,
+                            geoInfo.CountryCode,
+                            geoInfo.City,
+                            Disconnect?reason:""
+                        );
+
+                        if (!string.IsNullOrEmpty(logMessage))
+                        {
+                            await File.AppendAllTextAsync(fullPath, logMessage + Environment.NewLine);
+                        }
+                    }
+                });
+
+                if (Disconnect?!string.IsNullOrEmpty(Configs.Instance.Discord_Disconnect_WebHook):!string.IsNullOrEmpty(Configs.Instance.Discord_Connect_WebHook))
+                {
+                    string Format = Disconnect?Configs.Instance.Discord_Disconnect_Format:Configs.Instance.Discord_Connect_Format;
+                    var discordMessage = Format?.ReplaceMessages(
+                        DateTime.Now.ToString(Configs.Instance.Discord_DateFormat),
+                        DateTime.Now.ToString(Configs.Instance.Discord_TimeFormat),
+                        playername,
+                        playersteamId2,
+                        playersteamId3,
+                        playersteamId32,
+                        playersteamId64,
+                        playerip,
+                        geoInfo.Continent,
+                        geoInfo.Country,
+                        geoInfo.CountryCode,
+                        geoInfo.City,
+                        Disconnect?reason:""
+                    );
+
+                    if (!string.IsNullOrEmpty(discordMessage))
+                    {
+                        await Helper.SendToDiscordAsync(
+                            Disconnect?Configs.Instance.Discord_Disconnect_Style:Configs.Instance.Discord_Connect_Style,
+                            Disconnect?Configs.Instance.Discord_Disconnect_WebHook:Configs.Instance.Discord_Connect_WebHook,
+                            discordMessage,
+                            playersteamId64,
+                            playername,
+                            $"{g_Main.ServerPublicIpAdress}:{g_Main.ServerPort}",
+                            Disconnect
+                        );
+                    }
+                }
+            }
+
+            if (Configs.Instance.MySql_Enable == 1 || Configs.Instance.Cookies_Enable == 1)
+            {
+                if(Disconnect)
+                {
+                    await Helper.SavePlayerDataOnDisconnect(player);
+                }
+            }
+            
+        }
+        catch (Exception ex)
+        {
+            Helper.DebugMessage($"HandlePlayerConnectionsAsync error: {ex.Message}");
+        }
+    }
+
+    public HookResult OnPlayerSay(CCSPlayerController? player, CommandInfo info)
+    {
+        if (!player.IsValid()) return HookResult.Continue;
+
+        var eventmessage = info.ArgString;
+        eventmessage = eventmessage.TrimStart('"');
+        eventmessage = eventmessage.TrimEnd('"');
+        if (string.IsNullOrWhiteSpace(eventmessage)) return HookResult.Continue;
+
+        string message = eventmessage.Trim();
+
+        Game_UserMessages.HookPlayerChat_UserMessages(null, player, message);
+
+        return HookResult.Continue;
+    }
+    public HookResult OnPlayerSay_Team(CCSPlayerController? player, CommandInfo info)
+    {
+        if (!player.IsValid()) return HookResult.Continue;
+
+        var eventmessage = info.ArgString;
+        eventmessage = eventmessage.TrimStart('"');
+        eventmessage = eventmessage.TrimEnd('"');
+        if (string.IsNullOrWhiteSpace(eventmessage)) return HookResult.Continue;
+
+        string message = eventmessage.Trim();
+
+        Game_UserMessages.HookPlayerChat_UserMessages(null, player, message);
+
+        return HookResult.Continue;
+    }
+    public HookResult OnUserMessage_OnSayText2(CounterStrikeSharp.API.Modules.UserMessages.UserMessage um)
+    {
+        var entityindex = um.ReadInt("entityindex");
+        var player = Utilities.GetPlayerFromIndex(entityindex);
+        if (!player.IsValid()) return HookResult.Continue;
+
+        var message_type = um.ReadString("messagename");
+        var eventmessage_Bytes = um.ReadBytes("param2");
+        var eventmessage = Encoding.UTF8.GetString(eventmessage_Bytes);
+        if (string.IsNullOrWhiteSpace(eventmessage)) return HookResult.Continue;
+
+        string message = eventmessage.Trim();
+        Game_UserMessages.HookPlayerChat_UserMessages(um, player, message);
 
         return HookResult.Continue;
     }
@@ -402,29 +433,49 @@ public class MainPlugin : BasePlugin
     {
         try
         {
+            if (Configs.Instance.MySql_Enable > 0 || Configs.Instance.Cookies_Enable > 0)
+            {
+                Helper.SavePlayersValues();
+            }
+
             Helper.ClearVariables();
         }
         catch (Exception ex)
         {
-            Helper.DebugMessage($"Map end cleanup error: {ex.Message}");
+            Helper.DebugMessage($"OnMapEnd Error: {ex.Message}");
         }
     }
 
     public override void Unload(bool hotReload)
     {
-        CustomHooks.CleanUp();
-
         try
         {
+            Helper.RemoveRegisterCommandsAndHooks();
             Helper.ClearVariables();
+
         }
         catch (Exception ex)
         {
-            Helper.DebugMessage($"Unload cleanup error: {ex.Message}");
+            Helper.DebugMessage($"Unload Error: {ex.Message}");
+        }
+
+        if (hotReload)
+        {
+            try
+            {
+                Helper.RemoveRegisterCommandsAndHooks();
+                Helper.ClearVariables();
+            }
+            catch (Exception ex)
+            {
+                Helper.DebugMessage($"Unload hotReload Error: {ex.Message}");
+            }
         }
     }
+    
 
-    /* [ConsoleCommand("css_test", "test")]
+
+    /* [ConsoleCommand("css_test", "testttt")]
     [CommandHelper(whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
     public void test(CCSPlayerController? player, CommandInfo commandInfo)
     {
