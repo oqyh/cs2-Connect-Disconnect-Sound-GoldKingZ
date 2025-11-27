@@ -1,11 +1,28 @@
 {
-	"PrintChatToPlayer.Toggle.Messages.Not.Allowed": "{green}[CnD] {darkred}You Dont Have Permission",
-	"PrintChatToPlayer.Toggle.Messages.Enabled": "{green}[CnD] {grey}Messages Is Now {lime}Enabled",
-	"PrintChatToPlayer.Toggle.Messages.Disabled": "{green}[CnD] {grey}Messages Is Now {darkred}Disabled",
+	//==========================
+	//        Colors
+	//==========================
+	//  {Default} {White} {Darkred} {Green} {LightYellow} {LightBlue} 
+	//  {Olive} {Lime} {Red} {LightPurple} {Purple} {Grey} {Yellow} 
+	//  {Gold} {Silver} {Blue} {DarkBlue} {BlueGrey} {Magenta} {LightRed} {Orange}
+	//==========================
+	//        Other
+	//==========================
+	//{nextline} = Print On Next Line
+	//==========================
 
-	"PrintChatToPlayer.Toggle.Sounds.Not.Allowed": "{green}[CnD] {darkred}You Dont Have Permission",
-	"PrintChatToPlayer.Toggle.Sounds.Enabled": "{green}[CnD] {grey}Sounds Is Now {lime}Enabled",
-	"PrintChatToPlayer.Toggle.Sounds.Disabled": "{green}[CnD] {grey}Sounds Is Now {darkred}Disabled",
+	"PrintToChatToPlayer.ReloadPlugin.Not.Allowed": "{green}[CnD] {darkred}You Dont Have Permission",
+	"PrintToChatToPlayer.ReloadPlugin.Successfully": "{green}[CnD] {grey}Plugin Reloaded {lime}Successfully",
+
+	"PrintToChatToPlayer.Toggle.Sounds.Not.Allowed": "{green}[CnD] {darkred}You Dont Have Permission",
+	"PrintToChatToPlayer.Toggle.Sounds.Enabled": "{green}[CnD] {grey}Sounds Is Now {lime}Enabled",
+	"PrintToChatToPlayer.Toggle.Sounds.Disabled": "{green}[CnD] {grey}Sounds Is Now {darkred}Disabled",
+
+	"PrintToChatToPlayer.Toggle.Messages.Not.Allowed": "{green}[CnD] {darkred}You Dont Have Permission",
+	"PrintToChatToPlayer.Toggle.Messages.Enabled": "{green}[CnD] {grey}Messages Is Now {lime}Enabled",
+	"PrintToChatToPlayer.Toggle.Messages.Disabled": "{green}[CnD] {grey}Messages Is Now {darkred}Disabled",
+
+
 
 	"invalid.steamid": "InvalidSteamID",
 	"invalid.ipadress": "Local Host",
