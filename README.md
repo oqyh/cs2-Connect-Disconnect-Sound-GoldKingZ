@@ -2,7 +2,7 @@
 
 <a href="https://discord.com/invite/U7AuQhu"><img src="https://discord.com/api/guilds/651838917687115806/widget.png?style=banner2"></a>
 
-# [CS2] Connect-Disconnect-Sound-GoldKingZ (1.1.4)
+# [CS2] Connect-Disconnect-Sound-GoldKingZ (1.1.5)
 
 Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
@@ -56,90 +56,112 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
 ## 🛠️ `config/config.json`
 
+
 <details open>
 <summary><b>Main Config</b> (Click to expand 🔽)</summary>
 
-| Property                         | Description                                                         | Values                                                                                                    | Required                                     |
-| -------------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| `EarlyConnection`                | Enable Early Connection of the Players                              | `true` = Yes<br>`false` = No (Wait until fully connected)                                                 | -                                            |
-| `IgnoreTheseDisconnectReasons`   | Ignore specified disconnect reasons (see `disconnect_reasons.json`) | Comma-separated codes (e.g. `1,54,55`)<br>`""` = Disable                                                  | -                                            |
-| `DisableServerHibernate`         | Disable server hibernation when empty                               | `true` = Yes (Recommended)<br>`false` = No                                                                | -                                            |
-| `PickRandomSounds`               | Pick random sounds instead of sequential                            | `true` = Random<br>`false` = Sequential                                                                   | -                                            |
-| `RemoveDefaultDisconnect`        | Remove default disconnect message/icon                              | `0` = No<br>`1` = Remove messages<br>`2` = Remove messages + icon                                         | -                                            |
-| `Default_Sounds`                 | Default sound state for new players                                 | `true` = On<br>`false` = Off                                                                              | -                                            |
-| `Toggle_Sounds_CommandsInGame`   | Commands to toggle sounds on/off                                    | e.g. `!sound,!sounds`<br>`""` = Disable                                                                   | -                                            |
-| `Toggle_Sounds_Flags`            | Flags/Groups/SteamIDs allowed to use sound toggle commands          | e.g. `SteamID: 7656...,7656... \| Flag: @css/vips,@css/admins \| Group: #css/vips,...`<br>`""` = Everyone | When `Toggle_Sounds_CommandsInGame` ≠ `""`   |
-| `Toggle_Sounds_Hide`             | Hide confirmation chat after toggling sounds                        | `true` = Yes<br>`false` = No                                                                              | When `Toggle_Sounds_CommandsInGame` ≠ `""`   |
-| `Default_Messages`               | Default message state for new players                               | `true` = On<br>`false` = Off                                                                              | -                                            |
-| `Toggle_Messages_CommandsInGame` | Commands to toggle connect/disconnect messages on/off               | e.g. `!message,!messages`<br>`""` = Disable                                                               | -                                            |
-| `Toggle_Messages_Flags`          | Flags/Groups/SteamIDs allowed to use message toggle commands        | e.g. `SteamID: 7656...,7656... \| Flag: @css/vips,@css/admins \| Group: #css/vips,...`<br>`""` = Everyone | When `Toggle_Messages_CommandsInGame` ≠ `""` |
-| `Toggle_Messages_Hide`           | Hide confirmation chat after toggling messages                      | `true` = Yes<br>`false` = No                                                                              | When `Toggle_Messages_CommandsInGame` ≠ `""` |
-| `DateFormat`                     | Format for dates in messages                                        | e.g. `MM-dd-yyyy`, `dd MM yyyy`, `MM/dd/yy`                                                               | -                                            |
-| `TimeFormat`                     | Format for times in messages                                        | e.g. `HH:mm`, `hh:mm a`, `HH:mm:ss`                                                                       | -                                            |
+| Property                       | Description                                                        | Values                                                                   | Required                    |
+| ------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------------ | --------------------------- |
+| `AutoSetPlayerLanguage`        | Auto set player language based on player country                   | `true` = Yes, `false` = No                                               | -                           |
+| `Reload_CnD_CommandsInGame`    | Commands to reload Connect/Disconnect plugin                       | `Console_Commands: css_reloadconnect, css_reloadcnd`<br>`Chat_Commands:` | -                           |
+| `Reload_CnD_Flags`             | Restricted flags for reload command                                | `SteamIDs: ...`<br>`Flags: ...`<br>`Groups: ...`<br>`""` = Everyone      | `Reload_CnD_CommandsInGame` |
+| `Reload_CnD_Hide`              | Hide chat after reload command                                     | `0` = No<br>`1` = Only after success<br>`2` = Always hide                | `Reload_CnD_CommandsInGame` |
+| `EarlyConnection`              | Enable early connection of players                                 | `true` = Yes<br>`false` = No                                             | -                           |
+| `IgnoreTheseDisconnectReasons` | Ignore specific disconnect reasons (see `disconnect_reasons.json`) | Array of codes, e.g., `[1,54,55]`                                        | -                           |
+| `PickSoundsByOrder`            | Play connect/disconnect sounds in order instead of randomly        | `true` = Ordered<br>`false` = Random                                     | -                           |
+| `RemoveDefaultDisconnect`      | Remove default disconnect message/icon                             | `0` = No<br>`1` = Remove messages<br>`2` = Remove messages + icon        | -                           |
+| `DateFormat`                   | Date format used in messages                                       | e.g., `MM-dd-yyyy`, `dd MM yyyy`                                         | -                           |
+| `TimeFormat`                   | Time format used in messages                                       | e.g., `HH:mm`, `HH:mm:ss`, `hh:mm a`                                     | -                           |
+
+</details>
+
+<details>
+<summary><b>Connect/Disconnect Sounds Config</b> (Click to expand 🔽)</summary>
+
+| Property                   | Description                                    | Values                                                                                 | Required                   |
+| -------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------- |
+| `CnDSounds`                | Enable connect/disconnect sounds               | `0` = No<br>`1` = Yes<br>`2` = Yes, togglable enabled<br>`3` = Yes, togglable disabled | -                          |
+| `CnDSounds_CommandsInGame` | Commands to toggle sounds (if `CnDSounds=2/3`) | `Console_Commands: css_sound, css_sounds`<br>`Chat_Commands:`                          | `CnDSounds=2 or 3`         |
+| `CnDSounds_Flags`          | Restricted flags for toggle command            | `SteamIDs: ...`<br>`Flags: ...`<br>`Groups: ...`<br>`""` = Everyone                    | `CnDSounds_CommandsInGame` |
+| `CnDSounds_Hide`           | Hide chat after toggle                         | `0` = No<br>`1` = Only after success<br>`2` = Always hide                              | `CnDSounds_CommandsInGame` |
+
+</details>
+
+<details>
+<summary><b>Connect/Disconnect Messages Config</b> (Click to expand 🔽)</summary>
+
+| Property                     | Description                                        | Values                                                                                 | Required                     |
+| ---------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------- | ---------------------------- |
+| `CnDMessages`                | Enable connect/disconnect messages                 | `0` = No<br>`1` = Yes<br>`2` = Yes, togglable enabled<br>`3` = Yes, togglable disabled | -                            |
+| `CnDMessages_CommandsInGame` | Commands to toggle messages (if `CnDMessages=2/3`) | `Console_Commands: css_message, css_messages`<br>`Chat_Commands:`                      | `CnDMessages=2 or 3`         |
+| `CnDMessages_Flags`          | Restricted flags for toggle command                | `SteamIDs: ...`<br>`Flags: ...`<br>`Groups: ...`<br>`""` = Everyone                    | `CnDMessages_CommandsInGame` |
+| `CnDMessages_Hide`           | Hide chat after toggle                             | `0` = No<br>`1` = Only after success<br>`2` = Always hide                              | `CnDMessages_CommandsInGame` |
 
 </details>
 
 <details>
 <summary><b>Locally Config</b> (Click to expand 🔽)</summary>
 
-| Property | Description | Values | Required |  
-|----------|-------------|--------|----------|
-| `Log_Locally_Enable` | Enable Local Logging | `true`-Yes<br>`false`-No | - |
-| `Log_Locally_Connect_Format` | Connect Message Format | Template with placeholders<br>`""`-Disable | `Log_Locally_Enable=true` |
-| `Log_Locally_Disconnect_Format` | Disconnect Message Format | Template with placeholders<br>`""`-Disable | `Log_Locally_Enable=true` |
-| `Log_Locally_DateFormat` | Log Date Format | Examples: `MM-dd-yyyy` | `Log_Locally_Enable=true` |
-| `Log_Locally_TimeFormat` | Log Time Format | Examples: `HH:mm:ss` | `Log_Locally_Enable=true` |
-| `Log_Locally_AutoDeleteLogsMoreThanXdaysOld` | Auto-Delete Logs | Days to keep<br>`0`-Disable | `Log_Locally_Enable=true` |
-| `Cookies_Enable` | Enable Player Cookies | `true`-Yes<br>`false`-No | - |
-| `Cookies_AutoRemovePlayerOlderThanXDays` | Auto-Delete Inactive Cookies | Days to keep<br>`0`-Disable | `Cookies_Enable=true` |
+| Property                                     | Description                                    | Values                                                                                                        | Required                  |
+| -------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| `Log_Locally_Enable`                         | Enable local logging                           | `true` = Yes<br>`false` = No                                                                                  | -                         |
+| `Log_Locally_Connect_Format`                 | Connect message format                         | Template placeholders: `{DATE}`, `{TIME}`, `{PLAYERNAME}`, `{STEAMID64}`, `{IP}`, `{CITY}`, etc.              | `Log_Locally_Enable=true` |
+| `Log_Locally_Disconnect_Format`              | Disconnect message format                      | Template placeholders: `{DATE}`, `{TIME}`, `{PLAYERNAME}`, `{STEAMID64}`, `{IP}`, `{DISCONNECT_REASON}`, etc. | `Log_Locally_Enable=true` |
+| `Log_Locally_DateFormat`                     | Date format for logs                           | e.g., `MM-dd-yyyy`, `dd MM yyyy`                                                                              | `Log_Locally_Enable=true` |
+| `Log_Locally_TimeFormat`                     | Time format for logs                           | e.g., `HH:mm:ss`, `hh:mm a`                                                                                   | `Log_Locally_Enable=true` |
+| `Log_Locally_AutoDeleteLogsMoreThanXdaysOld` | Auto-delete old logs                           | Number of days (`0` = disable)                                                                                | `Log_Locally_Enable=true` |
+| `Cookies_Enable`                             | Save player cookies locally                    | `0` = No<br>`1` = On disconnect<br>`2` = On map change                                                        | -                         |
+| `Cookies_AutoRemovePlayerOlderThanXDays`     | Auto-delete inactive cookies older than X days | Number of days (`0` = disable)                                                                                | `Cookies_Enable=1 or 2`   |
 
 </details>
 
 <details>
 <summary><b>Discord Config</b> (Click to expand 🔽)</summary>
 
-| Property | Description | Values | Required |  
-|----------|-------------|--------|----------|
-| `Discord_Connect_WebHook` | Connect Webhook URL | Example URL<br>`""`-Disable | - |
-| `Discord_Connect_Style` | Connect Message Style | `0`-Disable<br>`1`-Text only<br>`2`-Text+Link<br>`3`-+Profile Pic<br>`4`-+Separate DT<br>`5`-+Server IP | `Discord_Connect_WebHook` ≠ `""` |
-| `Discord_Connect_SideColor` | Connect Message Color | Hex code (e.g. `0cff00`) | `Discord_Connect_Style=2/3/4/5` |
-| `Discord_Connect_Format` | Connect Message Format | Template with placeholders | `Discord_Connect_WebHook` ≠ `""` |
-| `Discord_Disconnect_WebHook` | Disconnect Webhook URL | Example URL<br>`""`-Disable | - |
-| `Discord_Disconnect_Style` | Disconnect Message Style | `0`-Disable<br>`1`-Text only<br>`2`-Text+Link<br>`3`-+Profile Pic<br>`4`-+Separate DT<br>`5`-+Server IP | `Discord_Disconnect_WebHook` ≠ `""` |
-| `Discord_Disconnect_SideColor` | Disconnect Message Color | Hex code (e.g. `ff0000`) | `Discord_Disconnect_Style=2/3/4/5` |
-| `Discord_Disconnect_Format` | Disconnect Message Format | Template with placeholders | `Discord_Disconnect_WebHook` ≠ `""` |
-| `Discord_DateFormat` | Date Format | Examples: `MM-dd-yyyy` | Webhook active |
-| `Discord_TimeFormat` | Time Format | Examples: `HH:mm:ss` | Webhook active |
-| `Discord_FooterImage` | Footer Image URL | Example image URL | Style=3/4/5 |
-| `Discord_UsersWithNoAvatarImage` | Default Avatar URL | Example image URL | Style=5 |
+| Property                         | Description                               | Values                                                                                                                     | Required              |
+| -------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| `Discord_Connect_WebHook`        | Connect webhook URL                       | URL string, `""` = disable                                                                                                 | -                     |
+| `Discord_Connect_Style`          | Connect message style                     | `0` = Disable<br>`1` = Text only<br>`2` = Text+Link<br>`3` = +Profile Pic<br>`4` = +Separate Date/Time<br>`5` = +Server IP | If webhook active     |
+| `Discord_Connect_SideColor`      | Message side color                        | Hex color code, e.g., `0cff00`                                                                                             | Style 2/3/4/5         |
+| `Discord_Connect_Format`         | Connect message template                  | Placeholders: `{PLAYERNAME}`, `{SHORTCOUNTRY}`, `{CITY}`, etc.                                                             | Webhook active        |
+| `Discord_Disconnect_WebHook`     | Disconnect webhook URL                    | URL string, `""` = disable                                                                                                 | -                     |
+| `Discord_Disconnect_Style`       | Disconnect message style                  | Same as connect style                                                                                                      | Webhook active        |
+| `Discord_Disconnect_SideColor`   | Message side color                        | Hex color code, e.g., `ff0000`                                                                                             | Style 2/3/4/5         |
+| `Discord_Disconnect_Format`      | Disconnect message template               | Placeholders: `{PLAYERNAME}`, `{SHORTCOUNTRY}`, `{CITY}`, `{DISCONNECT_REASON}`, etc.                                      | Webhook active        |
+| `Discord_DateFormat`             | Date format for Discord messages          | e.g., `MM-dd-yyyy`, `dd/MM/yy`                                                                                             | If any webhook active |
+| `Discord_TimeFormat`             | Time format for Discord messages          | e.g., `HH:mm:ss`                                                                                                           | If any webhook active |
+| `Discord_FooterImage`            | Footer image URL for messages             | URL string                                                                                                                 | Style 3/4/5           |
+| `Discord_UsersWithNoAvatarImage` | Default avatar for players without avatar | URL string                                                                                                                 | Style 5               |
 
 </details>
 
 <details>
 <summary><b>MySQL Config</b> (Click to expand 🔽)</summary>
 
-| Property | Description | Values | Required |  
-|----------|-------------|--------|----------|
-| `MySql_Enable` | Enable MySQL | `true`-Yes<br>`false`-No | - |
-| `MySql_Host` | Database Host | Example: `123.45.67.89` | `MySql_Enable=true` |
-| `MySql_Database` | Database Name | Example: `test` | `MySql_Enable=true` |
-| `MySql_Username` | Database User | Example: `root` | `MySql_Enable=true` |
-| `MySql_Password` | Database Password | Example: `Password123` | `MySql_Enable=true` |
-| `MySql_Port` | Database Port | Default: `3306` | `MySql_Enable=true` |
-| `MySql_AutoRemovePlayerOlderThanXDays` | Auto-Delete Old Data | Days to keep<br>`0`-Disable | `MySql_Enable=true` |
+| Property                               | Description                                    | Values                                                                     | Required         |
+| -------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------- | ---------------- |
+| `MySql_Enable`                         | Enable MySQL                                   | `0` = No<br>`1` = Save on disconnect<br>`2` = Save on map change           | -                |
+| `MySql_ConnectionTimeout`              | Connection timeout in seconds                  | Number, e.g., `30`                                                         | `MySql_Enable≠0` |
+| `MySql_RetryAttempts`                  | Retry attempts when connection fails           | Number, e.g., `3`                                                          | `MySql_Enable≠0` |
+| `MySql_RetryDelay`                     | Delay between retries (seconds)                | Number, e.g., `2`                                                          | `MySql_Enable≠0` |
+| `MySql_Servers`           | MySQL server configs                           | Array of servers with `Server`, `Port`, `Database`, `Username`, `Password` | `MySql_Enable≠0` |
+| `MySql_AutoRemovePlayerOlderThanXDays` | Auto-delete inactive players older than X days | Number of days (`0` = disable)                                             | `MySql_Enable≠0` |
 
 </details>
 
 <details>
 <summary><b>Utilities Config</b> (Click to expand 🔽)</summary>
 
-| Property | Description | Values | Required |  
-|----------|-------------|--------|----------|
-| `AutoUpdateSignatures` | Auto-Update Signatures | `true`-Yes<br>`false`-No | - |
-| `AutoUpdateGeoLocation` | Auto-Update GeoLocation | `true`-Yes<br>`false`-No | - |
-| `EnableDebug` | Debug Mode | `true`-Enable<br>`false`-Disable | - |
+| Property                | Description                                    | Values                       | Required |
+| ----------------------- | ---------------------------------------------- | ---------------------------- | -------- |
+| `AutoUpdateSignatures`  | Auto-update signatures in `gamedata/`          | `true` = Yes<br>`false` = No | -        |
+| `AutoUpdateGeoLocation` | Auto-update geolocation data in `GeoLocation/` | `true` = Yes<br>`false` = No | -        |
+| `AutoUpdateDisconnectReasons` | Auto-update `disconnect_reasons.json`    | `true` = Yes<br>`false` = No | -        |
+| `EnableDebug`           | Enable debug in server console                 | `true` = Yes<br>`false` = No | -        |
 
 </details>
+
+
 
 
 ## 🛠️ `config/connect_disconnect_config.json`
@@ -147,61 +169,65 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 <details open>
 <summary><b>Connect Disconnect Config</b> (Click to expand 🔽)</summary>
 
-### **Colors**  
-| Color Tag | Example |
-|-----------|---------|
-| `{Yellow}` | `{Yellow}Warning Message` |
-| `{Gold}` | `{Gold}[VIP] Player` |
-| `{Silver}` | `{Silver}Regular Member` |
-| `{Blue}` | `{Blue}Information` |
-| `{DarkBlue}` | `{DarkBlue}Moderator Tag` |
-| `{BlueGrey}` | `{BlueGrey}System Alert` |
-| `{Magenta}` | `{Magenta}Event Notification` |
-| `{LightRed}` | `{LightRed}Urgent Alert` |
-| `{LightBlue}` | `{LightBlue}Server Note` |
-| `{Olive}` | `{Olive}Team Chat` |
-| `{Lime}` | `{Lime}Success Message` |
-| `{Red}` | `{Red}Error!` |
-| `{Purple}` | `{Purple}Admin Command` |
-| `{Grey}` | `{Grey}12:00:00` |
-| `{Default}` | `{Default}Normal Text` |
-| `{White}` | `{White}Notification` |
-| `{Darkred}` | `{Darkred}Banned!` |
-| `{Green}` | `{Green}Connected` |
-| `{LightYellow}` | `{LightYellow}Hint Text` |
+### **Configuration**
 
+| Key                             | Description                          | Values/Examples                                                           |
+| ------------------------------- | ------------------------------------ | ------------------------------------------------------------------------- |
+| `CONNECT_MESSAGE_CHAT`          | Connect message template             | `"{Green}{PLAYERNAME} joined"`                                            |
+| `CONNECT_SOUND_VOLUME`          | Connect sound volume (1-100%)        | `"75%"`                                                                   |
+| `CONNECT_SOUND`                 | Connect sound file paths             | `["ui/item_acquired.vsnd"]`                                               |
+| `DISCONNECT_MESSAGE_CHAT`       | Disconnect message template          | `"{Red}{PLAYERNAME} left"`                                                |
+| `DISCONNECT_SOUND_VOLUME`       | Disconnect sound volume (1-100%)     | `"60%"`                                                                   |
+| `DISCONNECT_SOUND`              | Disconnect sound file paths          | `["ui/item_drop.vsnd"]`                                                   |
 
-### **Format**  
-| Key | Description | Values/Examples |
-|-----|-------------|-----------------|
-| `"ANY"` | Applies to all non-specified players | `"ANY": { ... }` |
-| `Flags : @css/admins` | Targets players with admin flags | `Flags : @css/admins,@css/admin` |
-| `Group : #css/admins` | Targets player groups | `Group : #css/admins,#css/admin` |
-| `SteamID : STEAM_0:1:122910632` | Targets specific players by SteamID | `SteamID : STEAM_0:1:122910632,U:1:245821265,245821265,76561198206086993` |
-| `CONNECT_MESSAGE_CHAT` | Connect message template | `"{Green}{PLAYERNAME} joined"` |
-| `CONNECT_SOUND_VOLUME` | Connect sound volume (1-100%) | `"75%"` |
-| `CONNECT_SOUND` | Connect sound file paths | `["ui/item_acquired.vsnd"]` |
-| `DISCONNECT_MESSAGE_CHAT` | Disconnect message template | `"{Red}{PLAYERNAME} left"` |
-| `DISCONNECT_SOUND_VOLUME` | Disconnect sound volume (1-100%) | `"60%"` |
-| `DISCONNECT_SOUND` | Disconnect sound file paths | `["ui/item_drop.vsnd"]` |
+---
 
-### **Placeholders**  
-| Placeholder | Description | Example Output |
-|-------------|-------------|----------------|
-| `{NEXTLINE}` | Creates line break in messages | `"Line1{NEXTLINE}Line2"` |
-| `{DATE}` | Current date (from main config format) | `12-31-2023` |
-| `{TIME}` | Current time (from main config format) | `23:59:59` |
-| `{PLAYERNAME}` | Player's display name | `ProPlayer123` |
-| `{STEAMID}` | SteamID  | `STEAM_0:1:122910632` |
-| `{STEAMID3}` | SteamID3 | `[U:1:245821265]` |
-| `{STEAMID32}` | SteamID32 | `245821265` |
-| `{STEAMID64}` | SteamID64 | `76561198206086993` |
-| `{IP}` | Player's IP address | `123.45.67.89` |
-| `{CONTINENT}` | Player's continent | `Asia` |
-| `{LONGCOUNTRY}` | Full country name | `United Arab Emirates` |
-| `{SHORTCOUNTRY}` | Country code | `AE` |
-| `{CITY}` | City name | `Abu Dhabi` |
-| `{REASON}` | Disconnect reason from `disconnect_reasons.json` | - |
+### **Placeholders**
+
+| Placeholder      | Description                                      | Example Output                                                     |
+| ---------------- | ------------------------------------------------ | ------------------------------------------------------------------ |
+| `{NEXTLINE}`     | Creates line break in messages                   | `"Line1{NEXTLINE}Line2"`                                           |
+| `{DATE}`         | Current date (from main config format)           | `12-31-2023`                                                       |
+| `{TIME}`         | Current time (from main config format)           | `23:59:59`                                                         |
+| `{PLAYERNAME}`   | Player's display name                            | `ProPlayer123`                                                     |
+| `{STEAMID}`      | SteamID                                          | `STEAM_0:1:122910632`                                              |
+| `{STEAMID3}`     | SteamID3                                         | `U:1:245821265`                                                    |
+| `{STEAMID32}`    | SteamID32                                        | `245821265`                                                        |
+| `{STEAMID64}`    | SteamID64                                        | `76561198206086993`                                                |
+| `{IP}`           | Player's IP address                              | `123.45.67.89`                                                     |
+| `{CONTINENT}`    | Player's continent                               | `Europe, Asia, Africa, North/South America, Australia, Antarctica` |
+| `{LONGCOUNTRY}`  | Full country name                                | `United Arab Emirates`                                             |
+| `{SHORTCOUNTRY}` | Country code                                     | `AE`                                                               |
+| `{CITY}`         | City name                                        | `Abu Dhabi`                                                        |
+| `{REASON}`       | Disconnect reason from `disconnect_reasons.json` | `Lost Connection`                                                  |
+
+---
+
+### **Colors**
+
+| Color Tag       | Example                        |
+| --------------- | ------------------------------ |
+| `{Default}`     | `{Default}Normal Text`         |
+| `{White}`       | `{White}Notification`          |
+| `{Darkred}`     | `{Darkred}Banned!`             |
+| `{Green}`       | `{Green}Connected`             |
+| `{LightYellow}` | `{LightYellow}Hint Text`       |
+| `{LightBlue}`   | `{LightBlue}Server Note`       |
+| `{Olive}`       | `{Olive}Team Chat`             |
+| `{Lime}`        | `{Lime}Success Message`        |
+| `{Red}`         | `{Red}Error!`                  |
+| `{LightPurple}` | `{LightPurple}Special Message` |
+| `{Purple}`      | `{Purple}Admin Command`        |
+| `{Grey}`        | `{Grey}12:00:00`               |
+| `{Yellow}`      | `{Yellow}Warning Message`      |
+| `{Gold}`        | `{Gold}[VIP] Player`           |
+| `{Silver}`      | `{Silver}Regular Member`       |
+| `{Blue}`        | `{Blue}Information`            |
+| `{DarkBlue}`    | `{DarkBlue}Moderator Tag`      |
+| `{BlueGrey}`    | `{BlueGrey}System Alert`       |
+| `{Magenta}`     | `{Magenta}Event Notification`  |
+| `{LightRed}`    | `{LightRed}Urgent Alert`       |
+| `{Orange}`      | `{Orange}Alert/Warning`        |
 
 </details>
 
@@ -212,7 +238,31 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
 <details>
 <summary><b>📋 View Version History</b> (Click to expand 🔽)</summary>
-
+### [1.1.5]
+- Fix Some Bugs And Clean Up
+- Fix CustomHooks
+- Fix config.json
+- Fix RemoveDefaultDisconnect 2 Killfeed Hidden Sometimes
+- Fix On config.json Flags 
+- Fix On connect_disconnect_config.json Flags 
+- Fix Exploit Colors Names In connect_disconnect_config.json
+- Changed IgnoreTheseDisconnectReasons From string To int
+- Changed PickRandomSounds To PickSoundsByOrder
+- Added AutoSetPlayerLanguage
+- Added Reload_CnD_CommandsInGame
+- Added Reload_CnD_Flags
+- Added Reload_CnD_Hide
+- Added CnDSounds
+- Added CnDSounds_CommandsInGame
+- Added CnDSounds_Flags
+- Added CnDSounds_Hide
+- Added CnDMessages
+- Added CnDMessages_CommandsInGame
+- Added CnDMessages_Flags
+- Added CnDMessages_Hide
+- Added AutoUpdateDisconnectReasons
+- Added MySql Multiple
+  
 ### [1.1.4]
 - Fix Some Bugs
 - Fix Toggles
