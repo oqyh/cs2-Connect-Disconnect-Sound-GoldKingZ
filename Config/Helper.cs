@@ -989,7 +989,7 @@ public class Helper
         {
             string disconnect_reasons = "config/disconnect_reasons.json";
             string disconnect_reasons_GithubUrl = "https://raw.githubusercontent.com/oqyh/cs2-Connect-Disconnect-Sound-GoldKingZ/main/Resources/disconnect_reasons.json";
-            await DownloadFromGitHub(disconnect_reasons, disconnect_reasons_GithubUrl);
+            await DownloadFromGitHub(disconnect_reasons, disconnect_reasons_GithubUrl, Configs.Instance.AutoUpdateDisconnectReasons);
 
             string connect_disconnect_config = "config/connect_disconnect_config.json";
             string connect_disconnect_config_GithubUrl = "https://raw.githubusercontent.com/oqyh/cs2-Connect-Disconnect-Sound-GoldKingZ/main/Resources/connect_disconnect_config.json";

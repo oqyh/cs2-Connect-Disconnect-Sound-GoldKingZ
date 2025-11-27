@@ -466,6 +466,11 @@ namespace CnD_Sound.Config
         [Comment("true = Yes")]
         [Comment("false = No")]
         public bool AutoUpdateGeoLocation { get; set; } = false;
+
+        [Comment("Auto Update disconnect_reasons.json (In ../Connect-Disconnect-Sound-GoldKingZ/config/disconnect_reasons.json)?")]
+        [Comment("true = Yes")]
+        [Comment("false = No")]
+        public bool AutoUpdateDisconnectReasons { get; set; } = false;
         
         [Comment("Enable Debug Plugin In Server Console (Helps You To Debug Issues You Facing)?")]
         [Comment("true = Yes")]
