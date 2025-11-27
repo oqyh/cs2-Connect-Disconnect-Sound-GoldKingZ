@@ -1,16 +1,4 @@
 {
-	//==========================
-	//        Colors
-	//==========================
-	//  {Default} {White} {Darkred} {Green} {LightYellow} {LightBlue} 
-	//  {Olive} {Lime} {Red} {LightPurple} {Purple} {Grey} {Yellow} 
-	//  {Gold} {Silver} {Blue} {DarkBlue} {BlueGrey} {Magenta} {LightRed} {Orange}
-	//==========================
-	//        Other
-	//==========================
-	//{nextline} = Print On Next Line
-	//==========================
-
 	"PrintToChatToPlayer.ReloadPlugin.Not.Allowed": "{green}[CnD] {darkred}You Dont Have Permission",
 	"PrintToChatToPlayer.ReloadPlugin.Successfully": "{green}[CnD] {grey}Plugin Reloaded {lime}Successfully",
 
@@ -32,4 +20,5 @@
 	"unknown.short.country": "Local Host",
 	"unknown.city": "Local Host",
 	"unknown.reason": "Unknown Reason"
+
 }
