@@ -238,6 +238,7 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
 <details>
 <summary><b>📋 View Version History</b> (Click to expand 🔽)</summary>
+  
 ### [1.1.5]
 - Fix Some Bugs And Clean Up
 - Fix CustomHooks
