@@ -8,6 +8,7 @@ using CounterStrikeSharp.API.Core.Translations;
 using Microsoft.VisualBasic;
 using System.Text.RegularExpressions;
 using CounterStrikeSharp.API.Modules.UserMessages;
+using CounterStrikeSharp.API.Modules.Cvars;
 
 namespace CnD_Sound;
 
@@ -39,12 +40,46 @@ public class Game_UserMessages
             {
                 if (onetime)
                 {
-                    Configs.Load(MainPlugin.Instance.ModuleDirectory);
-                    _ = Task.Run(Helper.DownloadMissingFilesAsync);
+                    Helper.ClearVariables();
                     Helper.RemoveRegisterCommandsAndHooks();
+
+                    Configs.Load(MainPlugin.Instance.ModuleDirectory);
+
+                    _ = Task.Run(Helper.DownloadMissingFilesAsync);
                     Helper.LoadJson_connect_disconnect_config(true, player);
                     Helper.LoadJson_disconnect_reasons(true, player);
                     Helper.RegisterCommandsAndHooks();
+                    Helper.ReloadPlayersGlobals();
+
+                    MainPlugin.Instance.g_Main.ServerPublicIpAdress = ConVar.Find("ip")?.StringValue!;
+                    MainPlugin.Instance.g_Main.ServerPort = ConVar.Find("hostport")?.GetPrimitiveValue<int>().ToString()!;
+                    
+                    if (Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld > 0)
+                    {
+                        string Fpath = Path.Combine(MainPlugin.Instance.ModuleDirectory, "logs");
+                        Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
+                    }
+
+                    if (string.IsNullOrEmpty(MainPlugin.Instance.g_Main.ServerPublicIpAdress) || Configs.Instance.MySql_Enable > 0)
+                    {
+                        _ = Task.Run(async () =>
+                        {
+                            if (string.IsNullOrEmpty(MainPlugin.Instance.g_Main.ServerPublicIpAdress))
+                            {
+                                string ip = await Helper.GetPublicIp();
+                                if (!string.IsNullOrEmpty(ip))
+                                {
+                                    MainPlugin.Instance.g_Main.ServerPublicIpAdress = ip;
+                                }
+                            }
+
+                            if (Configs.Instance.MySql_Enable > 0)
+                            {
+                                await MySqlDataManager.CreateTableIfNotExistsAsync();
+                            }
+                        });
+                    }
+                    
                     Helper.AdvancedPlayerPrintToChat(player, null!, MainPlugin.Instance.Localizer["PrintToChatToPlayer.ReloadPlugin.Successfully"]);
                 }
                 Helper.MuteCommands(um, Configs.Instance.Reload_CnD.Reload_CnD_Hide);
@@ -142,12 +177,46 @@ public class Game_UserMessages
         }
         else
         {
-            Configs.Load(MainPlugin.Instance.ModuleDirectory);
-            _ = Task.Run(Helper.DownloadMissingFilesAsync);
+            Helper.ClearVariables();
             Helper.RemoveRegisterCommandsAndHooks();
+
+            Configs.Load(MainPlugin.Instance.ModuleDirectory);
+
+            _ = Task.Run(Helper.DownloadMissingFilesAsync);
             Helper.LoadJson_connect_disconnect_config(true, player, info);
             Helper.LoadJson_disconnect_reasons(true, player, info);
             Helper.RegisterCommandsAndHooks();
+            Helper.ReloadPlayersGlobals();
+
+            MainPlugin.Instance.g_Main.ServerPublicIpAdress = ConVar.Find("ip")?.StringValue!;
+            MainPlugin.Instance.g_Main.ServerPort = ConVar.Find("hostport")?.GetPrimitiveValue<int>().ToString()!;
+            
+            if (Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld > 0)
+            {
+                string Fpath = Path.Combine(MainPlugin.Instance.ModuleDirectory, "logs");
+                Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
+            }
+
+            if (string.IsNullOrEmpty(MainPlugin.Instance.g_Main.ServerPublicIpAdress) || Configs.Instance.MySql_Enable > 0)
+            {
+                _ = Task.Run(async () =>
+                {
+                    if (string.IsNullOrEmpty(MainPlugin.Instance.g_Main.ServerPublicIpAdress))
+                    {
+                        string ip = await Helper.GetPublicIp();
+                        if (!string.IsNullOrEmpty(ip))
+                        {
+                            MainPlugin.Instance.g_Main.ServerPublicIpAdress = ip;
+                        }
+                    }
+
+                    if (Configs.Instance.MySql_Enable > 0)
+                    {
+                        await MySqlDataManager.CreateTableIfNotExistsAsync();
+                    }
+                });
+            }
+
             Helper.AdvancedPlayerPrintToChat(player, info, MainPlugin.Instance.Localizer["PrintToChatToPlayer.ReloadPlugin.Successfully"]);
         }
     }

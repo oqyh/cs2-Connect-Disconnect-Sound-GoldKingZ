@@ -280,9 +280,22 @@ public class Helper
 
     public static void ReloadPlayersGlobals()
     {
+        var g_Main = MainPlugin.Instance.g_Main;
+
         foreach (var players in GetPlayersController(false, false, false))
         {
             if (!players.IsValid()) continue;
+
+            if (g_Main.Player_Data.ContainsKey(players.Slot))
+            {
+                g_Main.Player_Data.Remove(players.Slot);
+            }
+
+            if (g_Main.Player_Disconnect_Reasons.ContainsKey(players.Slot))
+            {
+                g_Main.Player_Disconnect_Reasons.Remove(players.Slot);
+            }
+
             _ = MainPlugin.Instance.HandlePlayerConnectionsAsync(players, false, "", true);
         }
     }
@@ -336,7 +349,7 @@ public class Helper
 
         try
         {
-            using var reader = new DatabaseReader(Path.Combine(MainPlugin.Instance.ModuleDirectory, "GeoLocation/GeoLite2-City.mmdb"));
+            using var reader = new DatabaseReader(Path.GetFullPath(Path.Combine(MainPlugin.Instance.ModuleDirectory, "..", "..", "shared/GoldKingZ/GeoLocation/GeoLite2-City.mmdb")));
 
             var response = reader.City(ipAddress);
 
@@ -392,8 +405,8 @@ public class Helper
         var initialData = new Globals.PlayerDataClass(
             player,
             player.SteamID,
-            Configs.Instance.CnD_Sounds.CnDSounds == 1 ? 1 : Configs.Instance.CnD_Sounds.CnDSounds == 2 ? 1 : Configs.Instance.CnD_Sounds.CnDSounds == 3 ? 2 : 0,
-            Configs.Instance.CnD_Messages.CnDMessages == 1 ? 1 : Configs.Instance.CnD_Messages.CnDMessages == 2 ? 1 : Configs.Instance.CnD_Messages.CnDMessages == 3 ? 2 : 0,
+            Configs.Instance.CnD_Sounds.CnDSounds == 2 ? 1 : Configs.Instance.CnD_Sounds.CnDSounds == 3 ? 2 : 0,
+            Configs.Instance.CnD_Messages.CnDMessages == 2 ? 1 : Configs.Instance.CnD_Messages.CnDMessages == 3 ? 2 : 0,
             DateTime.Now
         );
         g_Main.Player_Data.TryAdd(player.Slot, initialData);
@@ -785,7 +798,7 @@ public class Helper
         {
             var task = Task.Run(() =>
             {
-                using (var reader = new DatabaseReader(Path.Combine(MainPlugin.Instance.ModuleDirectory, "GeoLocation/GeoLite2-City.mmdb")))
+                using var reader = new DatabaseReader(Path.GetFullPath(Path.Combine(MainPlugin.Instance.ModuleDirectory, "..", "..", "shared/GoldKingZ/GeoLocation/GeoLite2-City.mmdb")));
                 {
                     var response = reader.City(ipAddress);
                     return (
@@ -968,12 +981,23 @@ public class Helper
         ? token.ToObject<List<string>>()!.Where(s => !string.IsNullOrWhiteSpace(s)).ToList()
         : token != null ? new() { token.Value<string>()! } : new();
 
-
-
     public static async Task DownloadMissingFilesAsync()
     {
         try
         {
+            string Fpath = Path.Combine(MainPlugin.Instance.ModuleDirectory, "GeoLocation");
+            if (Directory.Exists(Fpath))
+            {
+                try
+                {
+                    Directory.Delete(Fpath, true);
+                }
+                catch
+                {
+                    
+                }
+            }
+            
             await DownloadMissingFiles();
             await Server.NextFrameAsync(() => CustomHooks.StartHook());
         }
@@ -999,9 +1023,10 @@ public class Helper
             string gamedata_GithubUrl = "https://raw.githubusercontent.com/oqyh/cs2-Private-Plugins/main/Resources/gamedata.json";
             await DownloadFromGitHub(gamedata, gamedata_GithubUrl, Configs.Instance.AutoUpdateSignatures);
 
-            string geoFileName = "GeoLocation/GeoLite2-City.mmdb";
+            string geoFileName = Path.GetFullPath(Path.Combine(MainPlugin.Instance.ModuleDirectory, "..", "..", "shared/GoldKingZ/GeoLocation/GeoLite2-City.mmdb"));
             string geoUpdateUrl = "https://raw.githubusercontent.com/oqyh/cs2-Connect-Disconnect-Sound-GoldKingZ/main/Resources/update.txt";
             await DownloadFromGitHub(geoFileName, geoUpdateUrl, Configs.Instance.AutoUpdateGeoLocation);
+
         }
         catch (Exception ex)
         {

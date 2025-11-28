@@ -17,7 +17,7 @@ namespace CnD_Sound;
 public class MainPlugin : BasePlugin
 {
     public override string ModuleName => "Connect Disconnect Sound (Continent , Country , City , Message , Sounds , Logs , Discord)";
-    public override string ModuleVersion => "1.1.5";
+    public override string ModuleVersion => "1.1.6";
     public override string ModuleAuthor => "Gold KingZ";
     public override string ModuleDescription => "https://github.com/oqyh";
     public static MainPlugin Instance { get; set; } = new();
@@ -28,7 +28,7 @@ public class MainPlugin : BasePlugin
     {
         Instance = this;
         Configs.Load(ModuleDirectory);
-
+        
         _ = Task.Run(Helper.DownloadMissingFilesAsync);
         Helper.RemoveRegisterCommandsAndHooks();
         Helper.LoadJson_connect_disconnect_config();
@@ -37,15 +37,15 @@ public class MainPlugin : BasePlugin
 
         if (hotReload)
         {
-            g_Main.ServerPublicIpAdress = ConVar.Find("ip")?.StringValue!;
-            g_Main.ServerPort = ConVar.Find("hostport")?.GetPrimitiveValue<int>().ToString()!;
-
             _ = Task.Run(Helper.DownloadMissingFilesAsync);
             Helper.RemoveRegisterCommandsAndHooks();
             Helper.LoadJson_connect_disconnect_config();
             Helper.LoadJson_disconnect_reasons();
             Helper.RegisterCommandsAndHooks();
             Helper.ReloadPlayersGlobals();
+
+            g_Main.ServerPublicIpAdress = ConVar.Find("ip")?.StringValue!;
+            g_Main.ServerPort = ConVar.Find("hostport")?.GetPrimitiveValue<int>().ToString()!;
 
             if (Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld > 0)
             {
@@ -136,7 +136,7 @@ public class MainPlugin : BasePlugin
         if (!Configs.Instance.EarlyConnection) return;
 
         var player = Utilities.GetPlayerFromSlot(playerSlot);
-        if (!player.IsValid() || g_Main.Player_Disconnect_Reasons.ContainsKey(player)) return;
+        if (!player.IsValid() || g_Main.Player_Disconnect_Reasons.ContainsKey(player.Slot)) return;
         
         _ = HandlePlayerConnectionsAsync(player, false, "");
     }
@@ -147,9 +147,9 @@ public class MainPlugin : BasePlugin
         var player = @event.Userid;
         if (!player.IsValid())return HookResult.Continue;
 
-        if (g_Main.Player_Disconnect_Reasons.ContainsKey(player))
+        if (g_Main.Player_Disconnect_Reasons.ContainsKey(player.Slot))
         {
-            g_Main.Player_Disconnect_Reasons.Remove(player);
+            g_Main.Player_Disconnect_Reasons.Remove(player.Slot);
         }
 
         if (Configs.Instance.EarlyConnection) return HookResult.Continue;
@@ -199,10 +199,10 @@ public class MainPlugin : BasePlugin
         {
             if (ignoreReasons.Contains(reasonInt))
             {
-                if (!g_Main.Player_Disconnect_Reasons.TryGetValue(player, out var reasons))
+                if (!g_Main.Player_Disconnect_Reasons.TryGetValue(player.Slot, out var reasons))
                 {
                     reasons = new HashSet<string>();
-                    g_Main.Player_Disconnect_Reasons[player] = reasons;
+                    g_Main.Player_Disconnect_Reasons[player.Slot] = reasons;
                 }
 
                 if (!reasons.Contains(reason))
@@ -253,10 +253,10 @@ public class MainPlugin : BasePlugin
                 await Server.NextFrameAsync(async () =>
                 {
                     if (!player.IsValid() || !g_Main.Player_Data.ContainsKey(player.Slot))return;
-                    
+
                     var (ConnectionSettingsMessage, ConnectionSettingsSound, ConnectionSettingsSoundVolume) = Helper.GetPlayerConnectionSettings(player, Disconnect?"DISCONNECT":"CONNECT");
                     string formatted = "";                
-                    
+
                     if (!string.IsNullOrEmpty(ConnectionSettingsMessage))
                     {
                         formatted = ConnectionSettingsMessage.ReplaceMessages(
@@ -282,13 +282,13 @@ public class MainPlugin : BasePlugin
                     {
                         if (!allplayers.IsValid() || !g_Main.Player_Data.ContainsKey(allplayers.Slot))continue;
 
-                        if (!string.IsNullOrEmpty(formatted) && (g_Main.Player_Data[allplayers.Slot].Toggle_Messages == 1 || g_Main.Player_Data[allplayers.Slot].Toggle_Messages == -1))
+                        if (!string.IsNullOrEmpty(formatted) && (g_Main.Player_Data[allplayers.Slot].Toggle_Messages == 1 || g_Main.Player_Data[allplayers.Slot].Toggle_Messages == -1 || Configs.Instance.CnD_Messages.CnDMessages == 1))
                         {
                             formatted = formatted.ReplaceColorTags();
                             Helper.AdvancedPlayerPrintToChat(allplayers, null!, formatted);
                         }
                         
-                        if (!string.IsNullOrEmpty(nextSound) && (g_Main.Player_Data[allplayers.Slot].Toggle_Sounds == 1 || g_Main.Player_Data[allplayers.Slot].Toggle_Sounds == -1))
+                        if (!string.IsNullOrEmpty(nextSound) && (g_Main.Player_Data[allplayers.Slot].Toggle_Sounds == 1 || g_Main.Player_Data[allplayers.Slot].Toggle_Sounds == -1 || Configs.Instance.CnD_Sounds.CnDSounds == 1))
                         {
                             if(nextSound.StartsWith("sounds/"))
                             {

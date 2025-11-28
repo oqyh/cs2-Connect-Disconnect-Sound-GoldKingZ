@@ -462,7 +462,7 @@ namespace CnD_Sound.Config
         [Comment("false = No")]
         public bool AutoUpdateSignatures { get; set; } = true;
 
-        [Comment("Auto Update GeoLocation (In ../Connect-Disconnect-Sound-GoldKingZ/GeoLocation/)?")]
+        [Comment("Auto Update GeoLocation (In ../shared/GoldKingZ/GeoLocation/)?")]
         [Comment("true = Yes")]
         [Comment("false = No")]
         public bool AutoUpdateGeoLocation { get; set; } = false;
