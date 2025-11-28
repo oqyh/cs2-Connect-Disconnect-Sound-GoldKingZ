@@ -2,7 +2,7 @@
 
 <a href="https://discord.com/invite/U7AuQhu"><img src="https://discord.com/api/guilds/651838917687115806/widget.png?style=banner2"></a>
 
-# [CS2] Connect-Disconnect-Sound-GoldKingZ (1.1.5)
+# [CS2] Connect-Disconnect-Sound-GoldKingZ (1.1.6)
 
 Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
@@ -154,9 +154,9 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
 | Property                | Description                                    | Values                       | Required |
 | ----------------------- | ---------------------------------------------- | ---------------------------- | -------- |
-| `AutoUpdateSignatures`  | Auto-update signatures in `gamedata/`          | `true` = Yes<br>`false` = No | -        |
-| `AutoUpdateGeoLocation` | Auto-update geolocation data in `GeoLocation/` | `true` = Yes<br>`false` = No | -        |
-| `AutoUpdateDisconnectReasons` | Auto-update `disconnect_reasons.json`    | `true` = Yes<br>`false` = No | -        |
+| `AutoUpdateSignatures`  | Auto-update signatures in `../Connect-Disconnect-Sound-GoldKingZ/gamedata/`          | `true` = Yes<br>`false` = No | -        |
+| `AutoUpdateGeoLocation` | Auto-update geolocation data in `../shared/GoldKingZ/GeoLocation/` | `true` = Yes<br>`false` = No | -        |
+| `AutoUpdateDisconnectReasons` | Auto-update `../Connect-Disconnect-Sound-GoldKingZ/config/disconnect_reasons.json`    | `true` = Yes<br>`false` = No | -        |
 | `EnableDebug`           | Enable debug in server console                 | `true` = Yes<br>`false` = No | -        |
 
 </details>
@@ -199,7 +199,7 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 | `{LONGCOUNTRY}`  | Full country name                                | `United Arab Emirates`                                             |
 | `{SHORTCOUNTRY}` | Country code                                     | `AE`                                                               |
 | `{CITY}`         | City name                                        | `Abu Dhabi`                                                        |
-| `{REASON}`       | Disconnect reason from `disconnect_reasons.json` | `Lost Connection`                                                  |
+| `{DISCONNECT_REASON}`       | Disconnect reason from `disconnect_reasons.json` | `Lost Connection`                                                  |
 
 ---
 
@@ -239,6 +239,13 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 <details>
 <summary><b>📋 View Version History</b> (Click to expand 🔽)</summary>
   
+### [1.1.6]
+- Moved GeoLocation To Shared
+- Fix Globals On Reload Plugin Command
+- Fix on CnDSounds 1 Not Play Sound
+- Fix on CnDMessages 1 Not Show Message
+- In connect_disconnect_config.json Changed From {REASON} To {DISCONNECT_REASON}
+
 ### [1.1.5]
 - Fix Some Bugs And Clean Up
 - Fix CustomHooks
