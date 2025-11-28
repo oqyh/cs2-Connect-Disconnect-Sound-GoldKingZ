@@ -23,7 +23,7 @@
 //  {LONGCOUNTRY} = ex: United Arab Emirates
 //  {SHORTCOUNTRY} = ex: AE
 //  {CITY} = City Abu Dhabi
-//  {REASON} = Disconnect Reason in disconnect_reasons.json
+//  {DISCONNECT_REASON} = Disconnect Reason in disconnect_reasons.json
 //==========================
 //        Colors
 //==========================
@@ -73,3 +73,4 @@
     ]
   }
 }
+
