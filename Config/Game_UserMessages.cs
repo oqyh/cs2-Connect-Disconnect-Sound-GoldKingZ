@@ -9,6 +9,7 @@ using Microsoft.VisualBasic;
 using System.Text.RegularExpressions;
 using CounterStrikeSharp.API.Modules.UserMessages;
 using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Timers;
 
 namespace CnD_Sound;
 
@@ -40,18 +41,17 @@ public class Game_UserMessages
             {
                 if (onetime)
                 {
-                    Helper.ClearVariables();
+                    Helper.ClearVariables(true);
                     Helper.RemoveRegisterCommandsAndHooks();
 
                     Configs.Load(MainPlugin.Instance.ModuleDirectory);
-
                     _ = Task.Run(Helper.DownloadMissingFilesAsync);
+
                     Helper.LoadJson_connect_disconnect_config(true, player);
                     Helper.LoadJson_disconnect_reasons(true, player);
                     Helper.RegisterCommandsAndHooks();
                     Helper.ReloadPlayersGlobals();
 
-                    MainPlugin.Instance.g_Main.ServerPublicIpAdress = ConVar.Find("ip")?.StringValue!;
                     MainPlugin.Instance.g_Main.ServerPort = ConVar.Find("hostport")?.GetPrimitiveValue<int>().ToString()!;
                     
                     if (Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld > 0)
@@ -60,25 +60,40 @@ public class Game_UserMessages
                         Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
                     }
 
-                    if (string.IsNullOrEmpty(MainPlugin.Instance.g_Main.ServerPublicIpAdress) || Configs.Instance.MySql_Enable > 0)
+                    MainPlugin.Instance.AddTimer(3.0f, async () =>
                     {
-                        _ = Task.Run(async () =>
-                        {
-                            if (string.IsNullOrEmpty(MainPlugin.Instance.g_Main.ServerPublicIpAdress))
-                            {
-                                string ip = await Helper.GetPublicIp();
-                                if (!string.IsNullOrEmpty(ip))
-                                {
-                                    MainPlugin.Instance.g_Main.ServerPublicIpAdress = ip;
-                                }
-                            }
+                        bool success = false;
+                        string getip = Helper.GetServerIp();
 
-                            if (Configs.Instance.MySql_Enable > 0)
+                        if (!string.IsNullOrEmpty(getip))
+                        {
+                            MainPlugin.Instance.g_Main.ServerPublicIpAdress = getip;
+                            try
                             {
-                                await MySqlDataManager.CreateTableIfNotExistsAsync();
+                                success = true;
                             }
-                        });
-                    }
+                            catch { }
+                        }
+
+                        if (!success)
+                        {
+                            string getip_2 = await Helper.GetPublicIp();
+                            if (!string.IsNullOrEmpty(getip_2))
+                            {
+                                MainPlugin.Instance.g_Main.ServerPublicIpAdress = getip_2;
+                                try
+                                {
+                                    success = true;
+                                }
+                                catch { }
+                            }
+                        }
+
+                        if (Configs.Instance.MySql_Enable > 0)
+                        {
+                            await MySqlDataManager.CreateTableIfNotExistsAsync();
+                        }
+                    }, TimerFlags.STOP_ON_MAPCHANGE);
                     
                     Helper.AdvancedPlayerPrintToChat(player, null!, MainPlugin.Instance.Localizer["PrintToChatToPlayer.ReloadPlugin.Successfully"]);
                 }
@@ -177,18 +192,17 @@ public class Game_UserMessages
         }
         else
         {
-            Helper.ClearVariables();
+            Helper.ClearVariables(true);
             Helper.RemoveRegisterCommandsAndHooks();
 
             Configs.Load(MainPlugin.Instance.ModuleDirectory);
-
             _ = Task.Run(Helper.DownloadMissingFilesAsync);
+
             Helper.LoadJson_connect_disconnect_config(true, player, info);
             Helper.LoadJson_disconnect_reasons(true, player, info);
             Helper.RegisterCommandsAndHooks();
             Helper.ReloadPlayersGlobals();
 
-            MainPlugin.Instance.g_Main.ServerPublicIpAdress = ConVar.Find("ip")?.StringValue!;
             MainPlugin.Instance.g_Main.ServerPort = ConVar.Find("hostport")?.GetPrimitiveValue<int>().ToString()!;
             
             if (Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld > 0)
@@ -197,25 +211,40 @@ public class Game_UserMessages
                 Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
             }
 
-            if (string.IsNullOrEmpty(MainPlugin.Instance.g_Main.ServerPublicIpAdress) || Configs.Instance.MySql_Enable > 0)
+            MainPlugin.Instance.AddTimer(3.0f, async () =>
             {
-                _ = Task.Run(async () =>
-                {
-                    if (string.IsNullOrEmpty(MainPlugin.Instance.g_Main.ServerPublicIpAdress))
-                    {
-                        string ip = await Helper.GetPublicIp();
-                        if (!string.IsNullOrEmpty(ip))
-                        {
-                            MainPlugin.Instance.g_Main.ServerPublicIpAdress = ip;
-                        }
-                    }
+                bool success = false;
+                string getip = Helper.GetServerIp();
 
-                    if (Configs.Instance.MySql_Enable > 0)
+                if (!string.IsNullOrEmpty(getip))
+                {
+                    MainPlugin.Instance.g_Main.ServerPublicIpAdress = getip;
+                    try
                     {
-                        await MySqlDataManager.CreateTableIfNotExistsAsync();
+                        success = true;
                     }
-                });
-            }
+                    catch { }
+                }
+
+                if (!success)
+                {
+                    string getip_2 = await Helper.GetPublicIp();
+                    if (!string.IsNullOrEmpty(getip_2))
+                    {
+                        MainPlugin.Instance.g_Main.ServerPublicIpAdress = getip_2;
+                        try
+                        {
+                            success = true;
+                        }
+                        catch { }
+                    }
+                }
+
+                if (Configs.Instance.MySql_Enable > 0)
+                {
+                    await MySqlDataManager.CreateTableIfNotExistsAsync();
+                }
+            }, TimerFlags.STOP_ON_MAPCHANGE);
 
             Helper.AdvancedPlayerPrintToChat(player, info, MainPlugin.Instance.Localizer["PrintToChatToPlayer.ReloadPlugin.Successfully"]);
         }

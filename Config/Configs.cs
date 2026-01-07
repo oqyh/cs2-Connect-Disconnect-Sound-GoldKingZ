@@ -471,6 +471,18 @@ namespace CnD_Sound.Config
         [Comment("true = Yes")]
         [Comment("false = No")]
         public bool AutoUpdateDisconnectReasons { get; set; } = false;
+
+        [Comment("Auto Precache Resources In multiaddonmanager.cfg?")]
+        [Comment("true = Yes")]
+        [Comment("false = No")]
+        public bool AutoPrecacheResources { get; set; } = false;
+
+        [Comment("If [AutoPrecacheResources = true], What Folder We Auto Precache Resources")]
+        [Comment("Empty = Everything")]
+        public List<string> AutoPrecacheResources_Folders { get; set; } = new List<string>
+        {
+            "sounds"
+        };
         
         [Comment("Enable Debug Plugin In Server Console (Helps You To Debug Issues You Facing)?")]
         [Comment("true = Yes")]

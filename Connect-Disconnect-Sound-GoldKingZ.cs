@@ -9,6 +9,7 @@ using CounterStrikeSharp.API.Modules.Timers;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core.Translations;
 using CounterStrikeSharp.API.Modules.Utils;
+using CounterStrikeSharp.API.Modules.Admin;
 using CnD_Sound.Config;
 using System.Text;
 
@@ -17,7 +18,7 @@ namespace CnD_Sound;
 public class MainPlugin : BasePlugin
 {
     public override string ModuleName => "Connect Disconnect Sound (Continent , Country , City , Message , Sounds , Logs , Discord)";
-    public override string ModuleVersion => "1.1.6";
+    public override string ModuleVersion => "1.1.7";
     public override string ModuleAuthor => "Gold KingZ";
     public override string ModuleDescription => "https://github.com/oqyh";
     public static MainPlugin Instance { get; set; } = new();
@@ -29,22 +30,25 @@ public class MainPlugin : BasePlugin
         Instance = this;
         Configs.Load(ModuleDirectory);
         
-        _ = Task.Run(Helper.DownloadMissingFilesAsync);
         Helper.RemoveRegisterCommandsAndHooks();
+
+        _ = Task.Run(Helper.DownloadMissingFilesAsync);
+        
         Helper.LoadJson_connect_disconnect_config();
         Helper.LoadJson_disconnect_reasons();
         Helper.RegisterCommandsAndHooks();
 
         if (hotReload)
         {
-            _ = Task.Run(Helper.DownloadMissingFilesAsync);
             Helper.RemoveRegisterCommandsAndHooks();
+
+            _ = Task.Run(Helper.DownloadMissingFilesAsync);
+            
             Helper.LoadJson_connect_disconnect_config();
             Helper.LoadJson_disconnect_reasons();
             Helper.RegisterCommandsAndHooks();
             Helper.ReloadPlayersGlobals();
 
-            g_Main.ServerPublicIpAdress = ConVar.Find("ip")?.StringValue!;
             g_Main.ServerPort = ConVar.Find("hostport")?.GetPrimitiveValue<int>().ToString()!;
 
             if (Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld > 0)
@@ -53,25 +57,40 @@ public class MainPlugin : BasePlugin
                 Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
             }
 
-            if (string.IsNullOrEmpty(g_Main.ServerPublicIpAdress) || Configs.Instance.MySql_Enable > 0)
+            AddTimer(3.0f, async () =>
             {
-                _ = Task.Run(async () =>
-                {
-                    if (string.IsNullOrEmpty(g_Main.ServerPublicIpAdress))
-                    {
-                        string ip = await Helper.GetPublicIp();
-                        if (!string.IsNullOrEmpty(ip))
-                        {
-                            g_Main.ServerPublicIpAdress = ip;
-                        }
-                    }
+                bool success = false;
+                string getip = Helper.GetServerIp();
 
-                    if (Configs.Instance.MySql_Enable > 0)
+                if (!string.IsNullOrEmpty(getip))
+                {
+                    g_Main.ServerPublicIpAdress = getip;
+                    try
                     {
-                        await MySqlDataManager.CreateTableIfNotExistsAsync();
+                        success = true;
                     }
-                });
-            }
+                    catch { }
+                }
+
+                if (!success)
+                {
+                    string getip_2 = await Helper.GetPublicIp();
+                    if (!string.IsNullOrEmpty(getip_2))
+                    {
+                        g_Main.ServerPublicIpAdress = getip_2;
+                        try
+                        {
+                            success = true;
+                        }
+                        catch { }
+                    }
+                }
+
+                if (Configs.Instance.MySql_Enable > 0)
+                {
+                    await MySqlDataManager.CreateTableIfNotExistsAsync();
+                }
+            }, TimerFlags.STOP_ON_MAPCHANGE);
         }
     }
 
@@ -79,13 +98,27 @@ public class MainPlugin : BasePlugin
     {
         try
         {
+            if(Configs.Instance.AutoPrecacheResources)
+            {
+                foreach (var Events in VpkParser.GetEventsFromVpk())
+                {
+                    var folders = Configs.Instance.AutoPrecacheResources_Folders;
+
+                    if (folders.Count == 0 || folders.Any(f => Events.StartsWith(f)))
+                    {
+                        manifest.AddResource(Events);
+                        Helper.DebugMessage("Auto ResourceManifest : " + Events);
+                    }
+                }
+            }
+
             string filePath = Path.Combine(ModuleDirectory, "config/ServerPrecacheResources.txt");
             string[] lines = File.ReadAllLines(filePath);
             foreach (string line in lines)
             {
                 if (line.TrimStart().StartsWith("//")) continue;
                 manifest.AddResource(line);
-                Helper.DebugMessage("ResourceManifest : " + line);
+                Helper.DebugMessage("Manual ResourceManifest : " + line);
             }
         }
         catch (Exception ex)
@@ -97,11 +130,13 @@ public class MainPlugin : BasePlugin
     public void OnMapStart(string Map)
     {
         Helper.RemoveRegisterCommandsAndHooks();
+
+        _ = Task.Run(Helper.DownloadMissingFilesAsync);
+        
         Helper.LoadJson_connect_disconnect_config();
         Helper.LoadJson_disconnect_reasons();
         Helper.RegisterCommandsAndHooks();
 
-        g_Main.ServerPublicIpAdress = ConVar.Find("ip")?.StringValue!;
         g_Main.ServerPort = ConVar.Find("hostport")?.GetPrimitiveValue<int>().ToString()!;
 
         if (Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld > 0)
@@ -110,35 +145,63 @@ public class MainPlugin : BasePlugin
             Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
         }
 
-        if (string.IsNullOrEmpty(g_Main.ServerPublicIpAdress) || Configs.Instance.MySql_Enable > 0)
+        
+        AddTimer(3.0f, async () =>
         {
-            _ = Task.Run(async () =>
-            {
-                if (string.IsNullOrEmpty(g_Main.ServerPublicIpAdress))
-                {
-                    string ip = await Helper.GetPublicIp();
-                    if (!string.IsNullOrEmpty(ip))
-                    {
-                        g_Main.ServerPublicIpAdress = ip;
-                    }
-                }
+            bool success = false;
+            string getip = Helper.GetServerIp();
 
-                if (Configs.Instance.MySql_Enable > 0)
+            if (!string.IsNullOrEmpty(getip))
+            {
+                g_Main.ServerPublicIpAdress = getip;
+                try
                 {
-                    await MySqlDataManager.CreateTableIfNotExistsAsync();
+                    success = true;
                 }
-            });
-        }
+                catch { }
+            }
+
+            if (!success)
+            {
+                string getip_2 = await Helper.GetPublicIp();
+                if (!string.IsNullOrEmpty(getip_2))
+                {
+                    g_Main.ServerPublicIpAdress = getip_2;
+                    try
+                    {
+                        success = true;
+                    }
+                    catch { }
+                }
+            }
+
+            if (Configs.Instance.MySql_Enable > 0)
+            {
+                await MySqlDataManager.CreateTableIfNotExistsAsync();
+            }
+        }, TimerFlags.STOP_ON_MAPCHANGE);
+        
     }
 
     public void OnClientAuthorized(int playerSlot, SteamID steamId)
     {
-        if (!Configs.Instance.EarlyConnection) return;
-
         var player = Utilities.GetPlayerFromSlot(playerSlot);
-        if (!player.IsValid() || g_Main.Player_Disconnect_Reasons.ContainsKey(player.Slot)) return;
-        
-        _ = HandlePlayerConnectionsAsync(player, false, "");
+        if (!player.IsValid()) return;
+
+        if (g_Main.Player_Disconnect_Reasons.TryGetValue(player.Slot, out var handle))
+        {
+            if(handle.OneTime)return;
+        }
+
+        if (Configs.Instance.EarlyConnection)
+        {
+            _ = HandlePlayerConnectionsAsync(player, false, "");
+
+            if (g_Main.Player_Disconnect_Reasons.ContainsKey(player.Slot))
+            {
+                g_Main.Player_Disconnect_Reasons[player.Slot].OneTime = true;
+            }
+        }
     }
     public HookResult OnEventPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
     {
@@ -152,11 +215,11 @@ public class MainPlugin : BasePlugin
             g_Main.Player_Disconnect_Reasons.Remove(player.Slot);
         }
 
-        if (Configs.Instance.EarlyConnection) return HookResult.Continue;
+        if (!Configs.Instance.EarlyConnection)
+        {
+            _ = HandlePlayerConnectionsAsync(player, false, "");
+        }
         
-
-        _ = HandlePlayerConnectionsAsync(player, false, "");
-
         return HookResult.Continue;
     }
 
@@ -193,21 +256,27 @@ public class MainPlugin : BasePlugin
 
         if (!player.IsValid())return HookResult.Continue;
 
-        var ignoreReasons = Configs.Instance.IgnoreTheseDisconnectReasons;
+        if (Configs.Instance.MySql_Enable == 1 || Configs.Instance.Cookies_Enable == 1)
+        {
+            _ = HandlePlayerDisconnectAsync(player);
+        }
 
+        var ignoreReasons = Configs.Instance.IgnoreTheseDisconnectReasons;
         if (ignoreReasons != null && ignoreReasons.Count > 0)
         {
             if (ignoreReasons.Contains(reasonInt))
             {
-                if (!g_Main.Player_Disconnect_Reasons.TryGetValue(player.Slot, out var reasons))
+                if (g_Main.Player_Disconnect_Reasons.TryGetValue(player.Slot, out var existingEntry))
                 {
-                    reasons = new HashSet<string>();
-                    g_Main.Player_Disconnect_Reasons[player.Slot] = reasons;
+                    if (!existingEntry.Player_Disconnect_Reasons.Contains(reason))
+                    {
+                        existingEntry.Player_Disconnect_Reasons.Add(reason);
+                    }
                 }
-
-                if (!reasons.Contains(reason))
+                else
                 {
-                    reasons.Add(reason);
+                    var reasons = new HashSet<string> { reason };
+                    g_Main.Player_Disconnect_Reasons[player.Slot] = new Globals.Player_Disconnect_ReasonsClass(player, reasons, false);
                 }
 
                 return HookResult.Continue;
@@ -366,19 +435,23 @@ public class MainPlugin : BasePlugin
                     }
                 }
             }
-
-            if (Configs.Instance.MySql_Enable == 1 || Configs.Instance.Cookies_Enable == 1)
-            {
-                if(Disconnect)
-                {
-                    await Helper.SavePlayerDataOnDisconnect(player);
-                }
-            }
-            
         }
         catch (Exception ex)
         {
             Helper.DebugMessage($"HandlePlayerConnectionsAsync error: {ex.Message}");
+        }
+    }
+
+    public async Task HandlePlayerDisconnectAsync(CCSPlayerController player)
+    {
+        try
+        {
+            if (!player.IsValid()) return;
+            await Helper.SavePlayerDataOnDisconnect(player);
+        }
+        catch (Exception ex)
+        {
+            Helper.DebugMessage($"HandlePlayerDisconnectAsync error: {ex.Message}");
         }
     }
 
@@ -418,7 +491,6 @@ public class MainPlugin : BasePlugin
         var player = Utilities.GetPlayerFromIndex(entityindex);
         if (!player.IsValid()) return HookResult.Continue;
 
-        var message_type = um.ReadString("messagename");
         var eventmessage_Bytes = um.ReadBytes("param2");
         var eventmessage = Encoding.UTF8.GetString(eventmessage_Bytes);
         if (string.IsNullOrWhiteSpace(eventmessage)) return HookResult.Continue;
@@ -451,7 +523,7 @@ public class MainPlugin : BasePlugin
         try
         {
             Helper.RemoveRegisterCommandsAndHooks();
-            Helper.ClearVariables();
+            Helper.ClearVariables(true);
 
         }
         catch (Exception ex)
@@ -464,7 +536,7 @@ public class MainPlugin : BasePlugin
             try
             {
                 Helper.RemoveRegisterCommandsAndHooks();
-                Helper.ClearVariables();
+                Helper.ClearVariables(true);
             }
             catch (Exception ex)
             {
@@ -474,6 +546,32 @@ public class MainPlugin : BasePlugin
     }
     
 
+    [ConsoleCommand("gkz_download", "Force Download Addons")]
+    [ConsoleCommand("gkz_forcedownload", "Force Download Addons")]
+    [RequiresPermissions("@css/root")]
+    [CommandHelper(whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]
+    public void ForceUpdate(CCSPlayerController? player, CommandInfo commandInfo)
+    {
+        string command = commandInfo.GetArg(1);
+        if(string.IsNullOrEmpty(command))
+        {
+            commandInfo.ReplyToCommand("Missing <WorkShopID>");
+            return;
+        }
+
+        AddTimer(1.0f, () =>
+        {
+            Server.ExecuteCommand("mm_remove_addon " + command);
+            AddTimer(0.5f, () =>
+            {
+                Server.ExecuteCommand("mm_add_addon " + command);
+                AddTimer(0.10f, () =>
+                {
+                    Server.ExecuteCommand("mm_download_addon " + command);
+                }, TimerFlags.STOP_ON_MAPCHANGE);
+            }, TimerFlags.STOP_ON_MAPCHANGE);
+        }, TimerFlags.STOP_ON_MAPCHANGE);
+    }
 
     /* [ConsoleCommand("css_test", "testttt")]
     [CommandHelper(whoCanExecute: CommandUsage.CLIENT_AND_SERVER)]

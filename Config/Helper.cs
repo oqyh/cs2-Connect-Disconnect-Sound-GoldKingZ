@@ -17,8 +17,34 @@ using Newtonsoft.Json.Linq;
 using CnD_Sound.Config;
 using System.Globalization;
 using CounterStrikeSharp.API.Modules.Entities;
+using System.Runtime.InteropServices;
 
 namespace CnD_Sound;
+
+
+public static class Server_Hook_Utils
+{
+    private readonly static IntPtr _networkSystem;
+
+    private delegate nint CNetworkSystemUpdatePublicIp(IntPtr networkSystem);
+    private static CNetworkSystemUpdatePublicIp? _networkSystemUpdatePublicIp;
+
+    static unsafe Server_Hook_Utils()
+    {
+        _networkSystem = NativeAPI.GetValveInterface(0, "NetworkSystemVersion001");
+    }
+    public unsafe static string GetServerIp()
+    {
+        if (_networkSystemUpdatePublicIp == null)
+        {
+            var funcPtr = *(nint*)(*(nint*)_networkSystem + 256);
+            _networkSystemUpdatePublicIp = Marshal.GetDelegateForFunctionPointer<CNetworkSystemUpdatePublicIp>(funcPtr);
+        }
+
+        var ipBytes = (byte*)(_networkSystemUpdatePublicIp(_networkSystem) + 4);
+        return $"{ipBytes[0]}.{ipBytes[1]}.{ipBytes[2]}.{ipBytes[3]}";
+    }
+}
 
 public class Helper
 {
@@ -271,30 +297,18 @@ public class Helper
         );
     }
 
-    public static void ClearVariables()
+    public static void ClearVariables(bool clear_data = false)
     {
         var g_Main = MainPlugin.Instance.g_Main;
 
-        g_Main.Clear();
+        g_Main.Clear(clear_data);
     }
 
     public static void ReloadPlayersGlobals()
     {
-        var g_Main = MainPlugin.Instance.g_Main;
-
         foreach (var players in GetPlayersController(false, false, false))
         {
             if (!players.IsValid()) continue;
-
-            if (g_Main.Player_Data.ContainsKey(players.Slot))
-            {
-                g_Main.Player_Data.Remove(players.Slot);
-            }
-
-            if (g_Main.Player_Disconnect_Reasons.ContainsKey(players.Slot))
-            {
-                g_Main.Player_Disconnect_Reasons.Remove(players.Slot);
-            }
 
             _ = MainPlugin.Instance.HandlePlayerConnectionsAsync(players, false, "", true);
         }
@@ -405,8 +419,8 @@ public class Helper
         var initialData = new Globals.PlayerDataClass(
             player,
             player.SteamID,
-            Configs.Instance.CnD_Sounds.CnDSounds == 2 ? 1 : Configs.Instance.CnD_Sounds.CnDSounds == 3 ? 2 : 0,
             Configs.Instance.CnD_Messages.CnDMessages == 2 ? 1 : Configs.Instance.CnD_Messages.CnDMessages == 3 ? 2 : 0,
+            Configs.Instance.CnD_Sounds.CnDSounds == 2 ? 1 : Configs.Instance.CnD_Sounds.CnDSounds == 3 ? 2 : 0,
             DateTime.Now
         );
         g_Main.Player_Data.TryAdd(player.Slot, initialData);
@@ -667,6 +681,21 @@ public class Helper
         }
     }
 
+    public static string GetServerIp()
+    {
+        var getserverip = Server_Hook_Utils.GetServerIp();
+        if(!string.IsNullOrEmpty(getserverip) && !getserverip.Contains("0.0."))
+        {
+            return getserverip;
+        }
+
+        var getserverip_2 = $"{ConVar.Find("ip")?.StringValue}";
+        if(!string.IsNullOrEmpty(getserverip_2) && !getserverip_2.Contains("0.0."))
+        {
+            return getserverip_2;
+        }
+        return "";
+    }
     public static async Task<string> GetPublicIp()
     {
         var services = new[]
@@ -682,10 +711,7 @@ public class Helper
         {
             try
             {
-                using var client = new HttpClient();
-                client.Timeout = TimeSpan.FromSeconds(3);
-                
-                var response = await client.GetStringAsync(url);
+                var response = await _httpClient.GetStringAsync(url);
                 string ip = "";
 
                 switch (type)
@@ -693,14 +719,14 @@ public class Helper
                     case "text":
                         ip = response.Trim();
                         break;
-                        
+
                     case "cloudflare":
                         ip = response.Split('\n')
                                 .FirstOrDefault(line => line.StartsWith("ip="))
                                 ?.Split('=')[1]
                                 .Trim()!;
                         break;
-                        
+
                     case "httpbin":
                         using (var doc = JsonDocument.Parse(response))
                         {
@@ -718,12 +744,11 @@ public class Helper
                     }
                 }
             }
-            catch (Exception ex)
+            catch 
             {
-                DebugMessage($"Failed to get IP from {url}: {ex.Message}");
+                
             }
         }
-        DebugMessage("All IP services failed");
         return "";
     }
     
