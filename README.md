@@ -2,7 +2,7 @@
 
 <a href="https://discord.com/invite/U7AuQhu"><img src="https://discord.com/api/guilds/651838917687115806/widget.png?style=banner2"></a>
 
-# [CS2] Connect-Disconnect-Sound-GoldKingZ (1.1.6)
+# [CS2] Connect-Disconnect-Sound-GoldKingZ (1.1.7)
 
 Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
@@ -27,6 +27,8 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 [![MySQL](https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white)](https://dev.mysql.com/doc/connector-net/en/) [Included in zip]
 
 [![JSON](https://img.shields.io/badge/JSON-000000?logo=json)](https://www.newtonsoft.com/json) [Included in zip]
+
+[![ValvePak](https://img.shields.io/badge/ValvePak-181717?logo=github&logoColor=white)](https://github.com/ValveResourceFormat/ValvePak) [Included in zip]
 
 [![GeoLite2-City.mmdb](https://img.shields.io/badge/GeoLite2--City.mmdb-181717?logo=github&logoColor=white)](https://github.com/P3TERX/GeoLite.mmdb) [Included in zip]
 
@@ -157,6 +159,8 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 | `AutoUpdateSignatures`  | Auto-update signatures in `../Connect-Disconnect-Sound-GoldKingZ/gamedata/`          | `true` = Yes<br>`false` = No | -        |
 | `AutoUpdateGeoLocation` | Auto-update geolocation data in `../shared/GoldKingZ/GeoLocation/` | `true` = Yes<br>`false` = No | -        |
 | `AutoUpdateDisconnectReasons` | Auto-update `../Connect-Disconnect-Sound-GoldKingZ/config/disconnect_reasons.json`    | `true` = Yes<br>`false` = No | -        |
+| `AutoPrecacheResources` | Auto precache resources | `true`/`false` | - |
+| `AutoPrecacheResources_Folders` | Folders to auto precache | Array: `["materials","models","particles","scripts"]` | `AutoPrecacheResources = true` |
 | `EnableDebug`           | Enable debug in server console                 | `true` = Yes<br>`false` = No | -        |
 
 </details>
@@ -238,7 +242,17 @@ Connect , Disconnect , Country , City , Message , Sound , Logs , Discord
 
 <details>
 <summary><b>📋 View Version History</b> (Click to expand 🔽)</summary>
-  
+
+### [1.1.7]
+- Fix Bug On EarlyConnection 
+- Fix Bug On Cookies_Enable
+- Fix Bug On CnDSounds 2 And 3
+- Fix Bug On CnDMessages 2 And 3
+- Rework On Get Public Server IP
+- Added AutoPrecacheResources 
+- Added AutoPrecacheResources_Folders
+- Added Command gkz_download To Force Download Addons
+
 ### [1.1.6]
 - Moved GeoLocation To Shared
 - Fix Globals On Reload Plugin Command
